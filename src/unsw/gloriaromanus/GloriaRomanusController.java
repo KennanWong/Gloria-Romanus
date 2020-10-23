@@ -70,7 +70,12 @@ public class GloriaRomanusController{
 
   private Map<String, Integer> provinceToNumberTroopsMap;
 
-  private String humanFaction;
+  // private String humanFaction;
+
+  private Faction humanFaction;
+
+  // provinceMap object
+  private ProvinceMap provinceMap;
 
   private Feature currentlySelectedHumanProvince;
   private Feature currentlySelectedEnemyProvince;
@@ -80,6 +85,18 @@ public class GloriaRomanusController{
   @FXML
   private void initialize() throws JsonParseException, JsonMappingException, IOException {
     // TODO = you should rely on an object oriented design to determine ownership
+    // get the initial ownership json
+    String intialOwnershipContent = Files.readString(Paths.get("src/unsw/gloriaromanus/initial_province_ownership.json"));
+    JSONObject ownership = new JSONObject(intialOwnershipContent);
+
+    // get the adjacency matrix
+    String provinceAdjacencyContent = Files.readString(Paths.get("src/unsw/gloriaromanus/province_adjacency_matrix_fully_connected.json"));
+    JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
+
+
+    provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
+
+    /*
     provinceToOwningFactionMap = getProvinceToOwningFactionMap();
 
     provinceToNumberTroopsMap = new HashMap<String, Integer>();
@@ -87,10 +104,10 @@ public class GloriaRomanusController{
     for (String provinceName : provinceToOwningFactionMap.keySet()) {
       provinceToNumberTroopsMap.put(provinceName, r.nextInt(500));
     }
-
+    */
     // TODO = load this from a configuration file you create (user should be able to
     // select in loading screen)
-    humanFaction = "Rome";
+    humanFaction = provinceMap.getFaction("Rome");
 
     currentlySelectedHumanProvince = null;
     currentlySelectedEnemyProvince = null;
@@ -101,24 +118,37 @@ public class GloriaRomanusController{
   @FXML
   public void clickedInvadeButton(ActionEvent e) throws IOException {
     if (currentlySelectedHumanProvince != null && currentlySelectedEnemyProvince != null){
+      /*
       String humanProvince = (String)currentlySelectedHumanProvince.getAttributes().get("name");
       String enemyProvince = (String)currentlySelectedEnemyProvince.getAttributes().get("name");
-      if (confirmIfProvincesConnected(humanProvince, enemyProvince)){
+      */
+      Province humanProvince = provinceMap.getProvince((String)currentlySelectedHumanProvince.getAttributes().get("name"));
+      Province enemyProvince = provinceMap.getProvince((String)currentlySelectedEnemyProvince.getAttributes().get("name"));
+      if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())){
         // TODO = have better battle resolution than 50% chance of winning
         Random r = new Random();
         int choice = r.nextInt(2);
         if (choice == 0){
           // human won. Transfer 40% of troops of human over. No casualties by human, but enemy loses all troops
-          int numTroopsToTransfer = provinceToNumberTroopsMap.get(humanProvince)*2/5;
+          int numTroopsToTransfer = humanProvince.getNumTroops() *2/5;
+          /*
           provinceToNumberTroopsMap.put(enemyProvince, numTroopsToTransfer);
           provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsToTransfer);
           provinceToOwningFactionMap.put(enemyProvince, humanFaction);
+          */
+          enemyProvince.setNumTroops(numTroopsToTransfer);
+          humanProvince.addNumTroops(-numTroopsToTransfer);
+          Faction enemyFaction = enemyProvince.getFaction();
+          enemyFaction.removeProvince(enemyProvince);
+          enemyProvince.setFaction(humanFaction);
+          humanFaction.addProvince(enemyProvince);
           printMessageToTerminal("Won battle!");
         }
         else{
           // enemy won. Human loses 60% of soldiers in the province
-          int numTroopsLost = provinceToNumberTroopsMap.get(humanProvince)*3/5;
-          provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsLost);
+          int numTroopsLost = humanProvince.getNumTroops()*3/5;
+          humanProvince.addNumTroops(-numTroopsLost);
+          // provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsLost);
           printMessageToTerminal("Lost battle!");
         }
         resetSelections();  // reset selections in UI
@@ -178,14 +208,14 @@ public class GloriaRomanusController{
         LngLatAlt coor = p.getCoordinates();
         Point curPoint = new Point(coor.getLongitude(), coor.getLatitude(), SpatialReferences.getWgs84());
         PictureMarkerSymbol s = null;
-        String province = (String) f.getProperty("name");
-        String faction = provinceToOwningFactionMap.get(province);
+        Province province = provinceMap.getProvince((String) f.getProperty("name"));
+        Faction faction = province.getFaction();
 
         TextSymbol t = new TextSymbol(10,
-            faction + "\n" + province + "\n" + provinceToNumberTroopsMap.get(province), 0xFFFF0000,
+            faction.getName() + "\n" + province.getName() + "\n" + province.getNumTroops(), 0xFFFF0000,
             HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
 
-        switch (faction) {
+        switch (faction.getName()){
           case "Gaul":
             // note can instantiate a PictureMarkerSymbol using the JavaFX Image class - so could
             // construct it with custom-produced BufferedImages stored in Ram
@@ -264,22 +294,23 @@ public class GloriaRomanusController{
               else if (features.size() == 1){
                 // note maybe best to track whether selected...
                 Feature f = features.get(0);
-                String province = (String)f.getAttributes().get("name");
-
-                if (provinceToOwningFactionMap.get(province).equals(humanFaction)){
+                String provinceName = (String)f.getAttributes().get("name");
+                Province province = provinceMap.getProvince(provinceName);
+                
+                if (province.getFaction().equals(humanFaction)){
                   // province owned by human
                   if (currentlySelectedHumanProvince != null){
                     featureLayer.unselectFeature(currentlySelectedHumanProvince);
                   }
                   currentlySelectedHumanProvince = f;
-                  invading_province.setText(province);
+                  invading_province.setText(province.getName());
                 }
                 else{
                   if (currentlySelectedEnemyProvince != null){
                     featureLayer.unselectFeature(currentlySelectedEnemyProvince);
                   }
                   currentlySelectedEnemyProvince = f;
-                  opponent_province.setText(province);
+                  opponent_province.setText(province.getName());
                 }
 
                 featureLayer.selectFeature(f);                
@@ -316,10 +347,12 @@ public class GloriaRomanusController{
 
   private ArrayList<String> getHumanProvincesList() throws IOException {
     // https://developers.arcgis.com/labs/java/query-a-feature-layer/
-
+    /*
     String content = Files.readString(Paths.get("src/unsw/gloriaromanus/initial_province_ownership.json"));
     JSONObject ownership = new JSONObject(content);
     return ArrayUtil.convert(ownership.getJSONArray(humanFaction));
+    */
+    return humanFaction.getProvincesList();
   }
 
   /**
