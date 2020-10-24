@@ -138,10 +138,13 @@ public class GloriaRomanusController{
           */
           enemyProvince.setNumTroops(numTroopsToTransfer);
           humanProvince.addNumTroops(-numTroopsToTransfer);
+          /*
           Faction enemyFaction = enemyProvince.getFaction();
           enemyFaction.removeProvince(enemyProvince);
           enemyProvince.setFaction(humanFaction);
           humanFaction.addProvince(enemyProvince);
+          */
+          enemyProvince.changeProvinceOwnership(humanFaction);
           printMessageToTerminal("Won battle!");
         }
         else{
