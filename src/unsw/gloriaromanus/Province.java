@@ -69,4 +69,9 @@ public class Province {
         this.numTroops += numTroops;
     }
 
+    public void changeProvinceOwnership(Faction newOwner) {
+        Faction currentOwner = faction;
+        currentOwner.removeProvince(this);
+        newOwner.addProvince(this);
+    }
 }
