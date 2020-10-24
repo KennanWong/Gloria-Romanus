@@ -1,0 +1,190 @@
+{
+    "Chariot" : {
+        "category" : "Cavalry",
+        "range": 1,
+        "armour": 5,
+        "morale": 10,
+        "speed": 30,
+        "attackType": "melee",
+        "attack": 4,
+        "defenseSkill": 3,
+        "shieldDefense": 3
+    },
+    "Horse Heavy Cavalry" : {
+        "category" : "Cavalry",
+        "range": 1,
+        "armour": 15,
+        "morale": 10,
+        "speed": 20,
+        "attackType": "melee",
+        "attack": 10,
+        "defenseSkill": 10,
+        "shieldDefense": 10 
+    },
+    "Horse Lancer" : {
+        "category" : "Cavalry",
+        "range": 3,
+        "armour": 10,
+        "morale": 10,
+        "speed": 25,
+        "attackType": "melee",
+        "attack": 8,
+        "defenseSkill": 10,
+        "shieldDefense": 5
+    },
+    "Camel Archer" : {
+        "category" : "Artillery",
+        "range": 12,
+        "armour": 5,
+        "morale": 10,
+        "speed": 16,
+        "attackType": "ranged",
+        "attack": 8,
+        "defenseSkill": 8,
+        "shieldDefense": 8
+    },
+    "Elephant Archer" : {
+        "category" : "Artillery",
+        "range": 12,
+        "armour": 8,
+        "morale": 10,
+        "speed": 10,
+        "attackType": "ranged",
+        "attack": 10,
+        "defenseSkill": 10,
+        "shieldDefense": 10
+    },
+    "Horse archer" : {
+        "category" : "Artillery",
+        "range": 15,
+        "armour": 5,
+        "morale": 10,
+        "speed": 20,
+        "attackType": "ranged",
+        "attack": 8,
+        "defenseSkill": 5,
+        "shieldDefense": 5
+    },
+    "Druid" : {
+        "category" : "Infantry",
+        "range": 10,
+        "armour": 2,
+        "morale": 10,
+        "speed": 10,
+        "attackType": "range",
+        "attack": 10,
+        "defenseSkill": 2,
+        "shieldDefense": 2
+    },
+    "Hoplite" : {
+        "category" : "Infantry",
+        "range": 3,
+        "armour": 10,
+        "morale": 15,
+        "speed": 8,
+        "attackType": "melee",
+        "attack": 8,
+        "defenseSkill": 10,
+        "shieldDefense": 10
+    },
+    "Net Fighter" : {
+        "category" : "Infantry",
+        "range": 3,
+        "armour": 6,
+        "morale": 10,
+        "speed": 5,
+        "attackType": "melee",
+        "attack": 4,
+        "defenseSkill": 5,
+        "shieldDefense": 5
+    },
+    "Pikemen" : {
+        "category" : "Infantry",
+        "range": 3,
+        "armour": 10,
+        "morale": 10,
+        "speed": 8,
+        "attackType": "melee",
+        "attack": 6,
+        "defenseSkill": 10,
+        "shieldDefense": 6
+    },
+    "Swordsmen" : {
+        "category" : "Infantry",
+        "range": 3,
+        "armour": 10,
+        "morale": 15,
+        "speed": 12,
+        "attackType": "melee",
+        "attack": 10,
+        "defenseSkill": 10,
+        "shieldDefense": 10
+    },
+    "Missile Infantry" : {
+        "category" : "Artillery",
+        "range": 20,
+        "armour": 5,
+        "morale": 10,
+        "speed": 1,
+        "attackType": "ranged",
+        "attack": 15,
+        "defenseSkill": 3,
+        "shieldDefense": 3
+    },
+    "Spearmen" : {
+        "category" : "Artillery",
+        "range": 12,
+        "armour": 5,
+        "morale": 10,
+        "speed": 5,
+        "attackType": "ranged",
+        "attack": 10,
+        "defenseSkill": 5,
+        "shieldDefense": 5
+    },
+    "Archermen" : {
+        "category" : "Artillery",
+        "range": 15,
+        "armour": 5,
+        "morale": 10,
+        "speed": 5,
+        "attackType": "ranged",
+        "attack": 8,
+        "defenseSkill": 5,
+        "shieldDefense": 5
+    },
+    "Cannon" : {
+        "category" : "Artillery",
+        "range": 18,
+        "armour": 5,
+        "morale": 10,
+        "speed": 1,
+        "attackType": "ranged",
+        "attack": 17,
+        "defenseSkill": 3,
+        "shieldDefense": 3
+    },
+    "Crossbowman" : {
+        "category" : "Artillery",
+        "range": 13,
+        "armour": 5,
+        "morale": 10,
+        "speed": 7,
+        "attackType": "ranged",
+        "attack": 8,
+        "defenseSkill": 5,
+        "shieldDefense": 5
+    },
+    "Trebuchet" : {
+        "category" : "Artillery",
+        "range": 25,
+        "armour": 2,
+        "morale": 10,
+        "speed": 1,
+        "attackType": "ranged",
+        "attack": 20,
+        "defenseSkill": 2,
+        "shieldDefense": 2
+    }
+    
+}
