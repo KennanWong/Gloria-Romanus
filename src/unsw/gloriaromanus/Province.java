@@ -1,5 +1,7 @@
 package unsw.gloriaromanus;
 
+import unsw.gloriaromanus.infrastructure.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,6 +25,9 @@ public class Province {
     private String name;
     private Faction faction;
     private Unit unit;
+    private ArrayList<Building> allBuildings;
+    private ArrayList<TroopBuilding> troopBuildings;
+    //private ArrayList<WealthBuilding> wealthBuildings;
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
@@ -74,4 +79,90 @@ public class Province {
         currentOwner.removeProvince(this);
         newOwner.addProvince(this);
     }
+
+    //Functionality for buildings
+
+    /**
+     * The user will select a building on the UI to create 
+     * 
+     * @param building
+     * @return
+     */
+    public String addBuilding(String building) throws IOException {
+        //check if any building is currently being constructed in this province
+        if (underConstruction()) {
+            String s = "A building is already being constructed!";
+            return s;
+        }
+
+        //TODO
+        // check if any of our buildings will have a reduced cost time or build time
+        // cost is a multiplier and buildtime is a constant turn reduction
+        double costReduction = 1;
+        int buildTimeReduction = 0;
+
+        //create the building and add it to our lists of buildings
+        switch (building) {
+            case "Infantry":
+                Infantry i = new Infantry(costReduction, buildTimeReduction);
+                this.allBuildings.add(i);
+                this.troopBuildings.add(i);
+                break;
+            case "Cavalry":
+                Cavalry c = new Cavalry(costReduction, buildTimeReduction);
+                this.allBuildings.add(c);
+                this.troopBuildings.add(c);
+                break;
+            case "Artillery":
+                Artillery a = new Artillery(costReduction, buildTimeReduction);
+                this.allBuildings.add(a);
+                this.troopBuildings.add(a);
+                break;
+            /*
+            case "Mine":
+                
+                break;
+            case "Farm":
+                
+                break;
+            case "Port":
+                
+                break;
+            case "Market":
+                
+                break;
+            case "Wall":
+
+                break;
+            */
+        }
+
+        String s = "Construction began sucessfully!";
+        return s;
+    }
+
+    private boolean underConstruction() {
+        for (Building building : this.allBuildings) {
+            if (building.getBuildTime() != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void update() {
+        //update the province accordingly per turn
+        //incomplete
+        for (Building building : this.allBuildings) {
+            if (building.isBuilt()) {
+                continue;
+            } else {
+                building.update();
+            }
+        }
+    }
+
+
+
+
 }
