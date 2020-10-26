@@ -44,6 +44,17 @@
             </VBox>
         </HBox>
         <Button text="Invade" onAction="#clickedInvadeButton"/>
+        <HBox>
+            <VBox>
+                <Label text="Province 1"/>
+                <TextField fx:id="province_1" text="" editable="false"/>
+            </VBox>
+            <VBox>
+                <Label text="Province 2"/>
+                <TextField fx:id="province_2" text="" editable="false"/>
+            </VBox>
+        </HBox>
+        <Button text="Move Troops" onAction="#clickedMoveButton"/>
         <VBox>
             <Label text="Output from interactions"/>
             <TextArea fx:id="output_terminal" text="" editable="false"/>

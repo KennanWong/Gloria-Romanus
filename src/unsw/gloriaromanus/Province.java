@@ -22,16 +22,22 @@ import org.json.JSONObject;
 public class Province {
     private String name;
     private Faction faction;
-    private Unit unit;
+    private List<Unit> units;
+    private String roadLevel;
+    private int movementPointsReq;
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
 
-    public Province (String name, Faction faction) {
+    public Province (String name, Faction faction) throws IOException {
         this.name = name;
         this.faction = faction;
         Random r = new Random();
-        this.numTroops = r.nextInt(500);
+        this.units = new ArrayList<>();
+        Unit firstUnit = new Unit("Swordsmen", r.nextInt(500));
+        units.add(firstUnit);
+        this.roadLevel = "No roads";
+        this.movementPointsReq = 4;
     }
 
     /**
@@ -61,8 +67,25 @@ public class Province {
         return numTroops;
     }
 
+    public List<Unit> getUnits() {
+        return units;
+    }
+
+    public Unit getUnitOfType(String type) {
+        for (Unit unit: units) {
+            if (unit.getName() == type) {
+                return unit;
+            }
+        }
+        return null;
+    }
+
     public void setNumTroops(int numTroops) {
         this.numTroops = numTroops;
+    }
+
+    public void addUnit(Unit newUnit) {
+        units.add(newUnit);
     }
 
     public void addNumTroops(int numTroops) {
@@ -73,5 +96,56 @@ public class Province {
         Faction currentOwner = faction;
         currentOwner.removeProvince(this);
         newOwner.addProvince(this);
+    }
+
+    public void setRoadLevel(String roadLevel) {
+        this.roadLevel = roadLevel;
+        switch (roadLevel) {
+            case "No roads":
+                this.movementPointsReq = 4;
+                break;
+            case "Dirt roads":
+                this.movementPointsReq = 3;
+                break;
+            case "Paved roads":
+                this.movementPointsReq = 2;
+                break;
+            case "Highways roads":
+                this.movementPointsReq = 1;
+                break;
+        
+        }
+    }
+
+    /**
+     * Move all units from one province to another province
+     * @param toProvince province you want to move the troops too
+     */
+    public void moveUnits(Province toProvince) {
+        List<Unit> currUnits = this.units;
+        for (Unit unit: currUnits) {
+            Unit inNewProvince = toProvince.getUnitOfType(unit.getName());
+            if (inNewProvince != null) {
+                inNewProvince.setNumTroops(unit.getNumTroops() + inNewProvince.getNumTroops());
+            } else {
+                toProvince.addUnit(unit);
+            }
+        }
+        units.clear();
+    }
+
+    public int getMovementPointsReq() {
+        return movementPointsReq;
+    }
+
+    public int getMovementPointsOfUnits() {
+        int movementPt = 0;
+        for (Unit unit: units) {
+            if (movementPt == 0 || unit.getMovementPoints() < movementPt) {
+                movementPt = unit.getMovementPoints();
+            }
+        }
+
+        return movementPt;
     }
 }
