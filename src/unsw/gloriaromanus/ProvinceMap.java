@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -24,9 +26,9 @@ public class ProvinceMap {
     private Map<String, Province> provinces;
     private Map<String, Faction> factions;
     private JSONObject provinceAdjacencyMatrix;
+    private int numCities = 0;
 
-
-    public ProvinceMap (JSONObject map, JSONObject provinceAdjacencyMatrix) {
+    public ProvinceMap (JSONObject map, JSONObject provinceAdjacencyMatrix) throws IOException {
         // take the JSON map
         // each key will be a faction, create a Faction for each
         // each value will be a province, create a province, and add it to the faction
@@ -46,6 +48,7 @@ public class ProvinceMap {
                 Province province = new Province(provinceName, faction);
                 faction.addProvince(province);
                 provinces.put(provinceName, province);
+                numCities += 1;
             }
         }
         this.provinceAdjacencyMatrix = provinceAdjacencyMatrix;
@@ -67,4 +70,49 @@ public class ProvinceMap {
         return factions.get(name);
     }
     
+    public int getRequiredMovementPoints(Province province1, Province province2) throws IOException {
+        // since it is an adjacency matrix, dijkstras algo
+
+        // two arrays - one to hold the distance travelled
+        //            - one to hold the city it came from
+        // we must also ensure that they can only move through province in which they have conquered
+
+        Faction faction = province1.getFaction();
+
+        Map<String,String> lastProvince = new HashMap<>();
+        Map<String, Integer> distanceFromInit = new HashMap<>();
+
+        for (String key: provinceAdjacencyMatrix.keySet()) {
+            lastProvince.put(key, null);
+            distanceFromInit.put(key, 0);
+        }
+
+        Queue<String> toCheck = new LinkedList<String>();
+        toCheck.add(province1.getName());
+
+        while (!toCheck.isEmpty()) {
+            String checking = toCheck.remove();
+            JSONObject connectionArray = provinceAdjacencyMatrix.getJSONObject(checking);
+            for (String key: connectionArray.keySet()) {
+                if (connectionArray.getBoolean(key) && getProvince(key).getFaction() == faction) {
+                    // if there is a connection
+                    // add to the lsit of places to check
+                    if (distanceFromInit.get(key) == 0 || 
+                        (distanceFromInit.get(checking) + getProvince(key).getMovementPointsReq() < distanceFromInit.get(key))){
+                        toCheck.add(key);
+                        lastProvince.put(key, checking);
+                        distanceFromInit.put(key, (distanceFromInit.get(checking) + getProvince(key).getMovementPointsReq()));
+                    }
+                }
+            }
+
+        }
+
+
+        if (distanceFromInit.get(province2.getName()) != 0) {
+            return distanceFromInit.get(province2.getName());
+        } else {
+            return -1;
+        }
+    }
 }

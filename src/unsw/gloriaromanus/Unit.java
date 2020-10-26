@@ -28,35 +28,83 @@ import org.json.JSONObject;
  * current version represents a heavy infantry unit (almost no range, decent armour and morale)
  */
 public class Unit {
-    private int numTroops;  // the number of troops in this unit (should reduce based on depletion)
-    private String category;
-    private int range;  // range of the unit
-    private int armour;  // armour defense
-    private int morale;  // resistance to fleeing
-    private int speed;  // ability to disengage from disadvantageous battle
-    private int attack;  // can be either missile or melee attack to simplify. Could improve implementation by differentiating!
-    private int defenseSkill;  // skill to defend in battle. Does not protect from arrows!
-    private int shieldDefense; // a shield
+    private String name;        // name of troop
+    private int numTroops;      // the number of troops in this unit (should reduce based on depletion)
+    private String category;    // the category of the soldier
+    private int range;          // range of the unit
+    private int armour;         // armour defense
+    private int morale;         // resistance to fleeing
+    private int speed;          // ability to disengage from disadvantageous battle
+    private String attackType;  // attack type of the unit
+    private int attack;         // can be either missile or melee attack to simplify. Could improve implementation by differentiating!
+    private int defenseSkill;   // skill to defend in battle. Does not protect from arrows!
+    private int shieldDefense;  // a shield
+    private int movementPoints; // movement points of the unit
 
-    public Unit(String name, int numTroops) throws IOException {
-        // TODO = obtain these values from the file for the unit
+    /**
+     * Constructor for a unit class. Provide the nameOfTroop and the number of those troops, and it will pull from a configuration
+     * file to fill in the appropriate statistics
+     * @param nameOfTroop Name of the troop we want a unit class of
+     * @param numTroops Number of troops wanted in that unit
+     * @throws IOException
+     */
+    public Unit(String nameOfTroop, int numTroops) throws IOException {
         String unitConfigurationContent = Files.readString(Paths.get("src/unsw/gloriaromanus/unit_configuration.json"));
         JSONObject unitConfiguration = new JSONObject(unitConfigurationContent);
-        JSONObject unitStat = unitConfiguration.getJSONObject(name);
+        JSONObject unitStat = unitConfiguration.getJSONObject(nameOfTroop);
         this.numTroops = numTroops;
         this.category = unitStat.getString("category");
-        this.range = Integer.parseInt(unitStat.getString("range"));
-        armour = Integer.parseInt(unitStat.getString("armour"));
-        morale = Integer.parseInt(unitStat.getString("morale"));
-        speed = Integer.parseInt(unitStat.getString("speed"));
-        attack = Integer.parseInt(unitStat.getString("attack"));
-        defenseSkill = Integer.parseInt(unitStat.getString("defenseSkill"));
-        shieldDefense = Integer.parseInt(unitStat.getString("shieldDefense"));
+        name = nameOfTroop;
+
+        switch (category) {
+            case "Cavalry":
+                movementPoints = 15;
+                break;
+        
+            case "Artillery":
+                movementPoints = 4;
+                break;
+            
+            case "Infantry":
+                movementPoints = 10;
+                break;
+        }
+
+        range = unitStat.getInt("range");
+        armour = unitStat.getInt("armour");
+        morale = unitStat.getInt("morale");
+        speed = unitStat.getInt("speed");
+        attack = unitStat.getInt("attack");
+        attackType = unitStat.getString("attackType");
+        defenseSkill = unitStat.getInt("defenseSkill");
+        shieldDefense = unitStat.getInt("shieldDefense");
     }
 
     public int getNumTroops(){
         return numTroops;
     }
     
+    public int getMovementPoints() {
+        return movementPoints;
+    }
     
+    public int getDefenseSkill() {
+        return defenseSkill;
+    }
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setNumTroops(int numTroops) {
+        this.numTroops = numTroops;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

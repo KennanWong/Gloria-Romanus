@@ -80,7 +80,18 @@ public class GloriaRomanusController{
   private Feature currentlySelectedHumanProvince;
   private Feature currentlySelectedEnemyProvince;
 
+
+  @FXML
+  private TextField province_1;
+  @FXML
+  private TextField province_2;
+
+  private Feature currentlySelectedProvince1;
+  private Feature currentlySelectedProvince2;
+
   private FeatureLayer featureLayer_provinces;
+
+  private int selectionStep = 0;
 
   @FXML
   private void initialize() throws JsonParseException, JsonMappingException, IOException {
@@ -117,33 +128,198 @@ public class GloriaRomanusController{
 
   @FXML
   public void clickedInvadeButton(ActionEvent e) throws IOException {
-    if (currentlySelectedHumanProvince != null && currentlySelectedEnemyProvince != null){
+    if (currentlySelectedProvince1 != null && currentlySelectedProvince2 != null){
       /*
       String humanProvince = (String)currentlySelectedHumanProvince.getAttributes().get("name");
       String enemyProvince = (String)currentlySelectedEnemyProvince.getAttributes().get("name");
       */
-      Province humanProvince = provinceMap.getProvince((String)currentlySelectedHumanProvince.getAttributes().get("name"));
-      Province enemyProvince = provinceMap.getProvince((String)currentlySelectedEnemyProvince.getAttributes().get("name"));
+      Province humanProvince = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+      Province enemyProvince = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
+      if (!(humanProvince.getFaction() == humanFaction && enemyProvince.getFaction() != humanFaction)){
+        printMessageToTerminal("Incorrect selection of provinces!\n If you would like to invade a province,\n select your province for Province 1 and \n select an enemy province for Province 2");
+        resetSelections();  // reset selections in UI
+        addAllPointGraphics(); // reset graphics
+      }
+      
       if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())){
+        List <Unit> humanUnits = humanProvince.getUnits();
+        List <Unit> enemyUnits = enemyProvince.getUnits();
+      
+        // army strength calculated as the sum of number of soldiers in unit x attack x defense for all units in the army.
+
+        double humanStrength = 0;
+        for (Unit unit: humanUnits) {
+          humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+        }
+
+        if (humanStrength == 0) {
+          printMessageToTerminal("No soldiers to go into battle with!");
+          resetSelections();  // reset selections in UI
+          addAllPointGraphics(); // reset graphics
+          return;
+        }
+
+        double enemyStrength = 0;
+        for (Unit unit: enemyUnits) {
+          enemyStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+        }
+
+        if (enemyStrength == 0) {
+          // invade by default
+          enemyProvince.changeProvinceOwnership(humanFaction);
+          humanProvince.moveUnits(enemyProvince);
+          resetSelections();  // reset selections in UI
+          addAllPointGraphics(); // reset graphics
+          return;
+        }
+
+        printMessageToTerminal("humanStrength " + humanStrength);
+        printMessageToTerminal("enemyStrength " + enemyStrength);
+        boolean finished = false;
+        int numEncounters = 0;
+        while (!finished) {
+          double chanceOfWinning = humanStrength/(humanStrength + enemyStrength);
+          Random r = new Random();
+          double chance = r.nextDouble();
+
+          double winningStength = 0;
+          double losingStrength = 0;
+          List <Unit> winningUnits;
+          List <Unit> losingUnits;
+          if (chance < chanceOfWinning) {
+            // human won
+            printMessageToTerminal("Won encounter!");
+            winningStength = humanStrength;
+            losingStrength = enemyStrength;
+            winningUnits = humanUnits;
+            losingUnits = enemyUnits;
+          } else {
+            // enemy won
+            printMessageToTerminal("Loss encounter");
+            winningStength = enemyStrength;
+            losingStrength = humanStrength;
+            winningUnits = enemyUnits;
+            losingUnits = humanUnits;
+          }
+
+          
+          double percentageOfLoser = 0.0;
+
+          while (percentageOfLoser == 0.0) {
+            double tmp = r.nextDouble();
+            if (tmp >= (winningStength)/(winningStength + losingStrength)) {
+              percentageOfLoser = tmp;
+            }
+          }
+
+          for (Unit unit: losingUnits) {
+            printMessageToTerminal("Percentage of loser - " + percentageOfLoser);
+            // printMessageToTerminal("Losing units now "  + (int)((double)unit.getNumTroops()*(1-percentageOfLoser)));
+            unit.setNumTroops((int)((double)unit.getNumTroops()*(1-percentageOfLoser)));
+            printMessageToTerminal("Losing units now " + unit.getNumTroops());
+          }
+
+          humanStrength = 0;
+          for (Unit unit: humanUnits) {
+            humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+          }
+
+          enemyStrength = 0;
+          for (Unit unit: enemyUnits) {
+            enemyStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+          }
+          if (enemyStrength == 0) {
+            // human won
+            enemyProvince.changeProvinceOwnership(humanFaction);
+            humanProvince.moveUnits(enemyProvince);
+            printMessageToTerminal("Won battle!");
+            resetSelections();  // reset selections in UI
+            addAllPointGraphics(); // reset graphics
+            break;
+          } 
+          if (humanStrength == 0) {
+            // enemy won
+            humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
+            enemyProvince.moveUnits(humanProvince);
+            printMessageToTerminal("Lost battle!");
+            resetSelections();  // reset selections in UI
+            addAllPointGraphics(); // reset graphics
+            break;
+          }
+
+          double percentageOfWinner = 0.0;
+
+          while (percentageOfWinner == 0.0) {
+            double tmp = r.nextDouble();
+            if (tmp <= (losingStrength)/(winningStength + losingStrength)) {
+              percentageOfWinner = tmp;
+            }
+          }
+
+          for (Unit unit: winningUnits) {
+            printMessageToTerminal("Percentage of winner - " + percentageOfWinner);
+            // printMessageToTerminal("Winning units now " + (int)((double) unit.getNumTroops()*(1-percentageOfWinner)));
+            unit.setNumTroops((int)((double) unit.getNumTroops()*(1-percentageOfWinner)));
+            printMessageToTerminal("Winning units now " + unit.getNumTroops());
+          }
+
+          humanStrength = 0;
+          for (Unit unit: humanUnits) {
+            humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+          }
+
+          enemyStrength = 0;
+          for (Unit unit: enemyUnits) {
+            enemyStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
+          }
+          if (enemyStrength == 0) {
+            // human won
+            enemyProvince.changeProvinceOwnership(humanFaction);
+            humanProvince.moveUnits(enemyProvince);
+            printMessageToTerminal("Won battle!");
+            resetSelections();  // reset selections in UI
+            addAllPointGraphics(); // reset graphics
+            break;
+          } 
+          if (humanStrength == 0) {
+            // enemy won
+            humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
+            enemyProvince.moveUnits(humanProvince);
+            printMessageToTerminal("Lost battle!");
+            resetSelections();  // reset selections in UI
+            addAllPointGraphics(); // reset graphics
+            break;
+          }
+
+          numEncounters += 1; 
+          // recalculate strengths
+          
+          if (numEncounters == 200) {
+            break;
+          }
+        }
+        
+
+        /*
         // TODO = have better battle resolution than 50% chance of winning
         Random r = new Random();
         int choice = r.nextInt(2);
         if (choice == 0){
           // human won. Transfer 40% of troops of human over. No casualties by human, but enemy loses all troops
           int numTroopsToTransfer = humanProvince.getNumTroops() *2/5;
-          /*
+          
           provinceToNumberTroopsMap.put(enemyProvince, numTroopsToTransfer);
           provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsToTransfer);
           provinceToOwningFactionMap.put(enemyProvince, humanFaction);
-          */
+          
           enemyProvince.setNumTroops(numTroopsToTransfer);
           humanProvince.addNumTroops(-numTroopsToTransfer);
-          /*
+          
           Faction enemyFaction = enemyProvince.getFaction();
           enemyFaction.removeProvince(enemyProvince);
           enemyProvince.setFaction(humanFaction);
           humanFaction.addProvince(enemyProvince);
-          */
+          
           enemyProvince.changeProvinceOwnership(humanFaction);
           printMessageToTerminal("Won battle!");
         }
@@ -160,9 +336,43 @@ public class GloriaRomanusController{
       else{
         printMessageToTerminal("Provinces not adjacent, cannot invade!");
       }
-
+      */
+      } else {
+        printMessageToTerminal("Provinces not adjacent, cannot invade!");
+      }
     }
   }
+
+  @FXML
+  public void clickedMoveButton(ActionEvent e) throws IOException {
+
+    Province moveFrom = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+    Province moveTo = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
+
+    if (moveFrom.getFaction() != humanFaction || moveTo.getFaction() != humanFaction) {
+      printMessageToTerminal("Please select two provinces which are part of your faction");
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphics
+      return;
+    }
+    
+
+    int movementPointsAvailable = moveFrom.getMovementPointsOfUnits();
+    
+    int requiredMovementPoints = provinceMap.getRequiredMovementPoints(moveFrom, moveTo);
+    if (requiredMovementPoints == -1) {
+      printMessageToTerminal("Unable to find path to requested province");
+    }
+    else if (requiredMovementPoints <= movementPointsAvailable) {
+      moveFrom.moveUnits(moveTo);
+    } else {
+      printMessageToTerminal("Not enough movement points to move troops");
+    }
+    resetSelections();  // reset selections in UI
+    addAllPointGraphics(); // reset graphics
+  }
+
+
 
   /**
    * run this initially to update province owner, change feature in each
@@ -214,8 +424,13 @@ public class GloriaRomanusController{
         Province province = provinceMap.getProvince((String) f.getProperty("name"));
         Faction faction = province.getFaction();
 
+        String text = faction.getName() + "\n" + province.getName() + "\n";
+        for (Unit unit: province.getUnits()) {
+           text += unit.getName() + " - " + unit.getNumTroops() + "\n";
+        }
+
         TextSymbol t = new TextSymbol(10,
-            faction.getName() + "\n" + province.getName() + "\n" + province.getNumTroops(), 0xFFFF0000,
+            text, 0xFFFF0000,
             HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
 
         switch (faction.getName()){
@@ -299,7 +514,7 @@ public class GloriaRomanusController{
                 Feature f = features.get(0);
                 String provinceName = (String)f.getAttributes().get("name");
                 Province province = provinceMap.getProvince(provinceName);
-                
+                /*
                 if (province.getFaction().equals(humanFaction)){
                   // province owned by human
                   if (currentlySelectedHumanProvince != null){
@@ -315,6 +530,24 @@ public class GloriaRomanusController{
                   currentlySelectedEnemyProvince = f;
                   opponent_province.setText(province.getName());
                 }
+                */
+                if (selectionStep%2 == 0) {
+                  if (currentlySelectedProvince1 != null) {
+                    featureLayer.unselectFeature(currentlySelectedProvince1);
+                  }
+                  currentlySelectedProvince1 = f;
+                  province_1.setText(province.getName());
+
+                } else {
+                  if (currentlySelectedProvince2 != null) {
+                    featureLayer.unselectFeature(currentlySelectedProvince2);
+                  }
+                  currentlySelectedProvince2 = f;
+                  province_2.setText(province.getName());
+                }
+                selectionStep += 1;
+
+                
 
                 featureLayer.selectFeature(f);                
               }
@@ -378,11 +611,17 @@ public class GloriaRomanusController{
   }
 
   private void resetSelections(){
-    featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedEnemyProvince, currentlySelectedHumanProvince));
+    featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedProvince1, currentlySelectedProvince2));
+    /*
     currentlySelectedEnemyProvince = null;
     currentlySelectedHumanProvince = null;
     invading_province.setText("");
     opponent_province.setText("");
+    */
+    currentlySelectedProvince1 = null;
+    currentlySelectedProvince2 = null;
+    province_1.setText("");
+    province_2.setText("");
   }
 
   private void printMessageToTerminal(String message){
