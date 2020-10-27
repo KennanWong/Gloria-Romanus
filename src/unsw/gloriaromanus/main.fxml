@@ -55,6 +55,9 @@
             </VBox>
         </HBox>
         <Button text="Move Troops" onAction="#clickedMoveButton"/>
+        <Button text="Save Game" onAction="#clickedSaveButton"/>
+        <Button text="Load Game" onAction="#clickedLoadButton"/>
+        <Button text="Reset View" onAction="#clickedResetButton"/>
         <VBox>
             <Label text="Output from interactions"/>
             <TextArea fx:id="output_terminal" text="" editable="false"/>
