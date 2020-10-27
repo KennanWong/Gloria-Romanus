@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Province {
@@ -29,7 +30,7 @@ public class Province {
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
 
-    public Province (String name, Faction faction) throws IOException {
+    public Province(String name, Faction faction) throws IOException {
         this.name = name;
         this.faction = faction;
         Random r = new Random();
@@ -41,10 +42,10 @@ public class Province {
     }
 
     /**
-     * Method to set the faction of a provine
-     * It will first remove the province from the old faction,
-     * then it will add the province to the provided faction
-     * and set the faction of the province to the provided faction
+     * Method to set the faction of a provine It will first remove the province from
+     * the old faction, then it will add the province to the provided faction and
+     * set the faction of the province to the provided faction
+     * 
      * @param faction Faction that we want to set
      */
     public void setFaction(Faction faction) {
@@ -72,8 +73,8 @@ public class Province {
     }
 
     public Unit getUnitOfType(String type) {
-        for (Unit unit: units) {
-            if (unit.getName() == type) {
+        for (Unit unit : units) {
+            if (unit.getType().equals(type)) {
                 return unit;
             }
         }
@@ -113,18 +114,19 @@ public class Province {
             case "Highways roads":
                 this.movementPointsReq = 1;
                 break;
-        
+
         }
     }
 
     /**
      * Move all units from one province to another province
+     * 
      * @param toProvince province you want to move the troops too
      */
     public void moveUnits(Province toProvince) {
         List<Unit> currUnits = this.units;
-        for (Unit unit: currUnits) {
-            Unit inNewProvince = toProvince.getUnitOfType(unit.getName());
+        for (Unit unit : currUnits) {
+            Unit inNewProvince = toProvince.getUnitOfType(unit.getType());
             if (inNewProvince != null) {
                 inNewProvince.setNumTroops(unit.getNumTroops() + inNewProvince.getNumTroops());
             } else {
@@ -140,12 +142,41 @@ public class Province {
 
     public int getMovementPointsOfUnits() {
         int movementPt = 0;
-        for (Unit unit: units) {
+        for (Unit unit : units) {
             if (movementPt == 0 || unit.getMovementPoints() < movementPt) {
                 movementPt = unit.getMovementPoints();
             }
         }
-
         return movementPt;
+    }
+
+    public JSONObject getProvinceAsJSON() {
+        JSONObject provinceJSON = new JSONObject();
+        provinceJSON.put("name", name);
+        JSONArray unitsJSON = new JSONArray();
+        for (Unit unit : units) {
+            unitsJSON.put(unit.getUnitAsJson());
+        }
+        provinceJSON.put("units", unitsJSON);
+        provinceJSON.put("roadLevel", roadLevel);
+        provinceJSON.put("movementPointsReq", movementPointsReq);
+        return provinceJSON;
+    }
+
+    public void setProvinceFromJSON(JSONObject json) throws JSONException, IOException {
+        units.clear();
+        name = json.getString("name");
+        // set the units of the province
+        JSONArray unitsJSON = json.getJSONArray("units");
+        for (int i = 0; i < unitsJSON.length(); i++) {
+            JSONObject unitJSON = unitsJSON.getJSONObject(i);
+            Unit unit = new Unit(unitJSON.getString("type"), unitJSON.getInt("numTroops"));
+            unit.setUnitFromJSON(unitJSON);
+            addUnit(unit);
+        }
+
+        // set the infrastructure of the units
+        roadLevel = json.getString("roadLevel");
+        movementPointsReq = json.getInt("movementPointsReq");
     }
 }

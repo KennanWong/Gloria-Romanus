@@ -72,7 +72,13 @@ public class GloriaRomanusController{
 
   // private String humanFaction;
 
+
+  private Faction user1;
+  private Faction user2;
+
   private Faction humanFaction;
+
+  private Faction enemyFaction;
 
   // provinceMap object
   private ProvinceMap provinceMap;
@@ -91,7 +97,10 @@ public class GloriaRomanusController{
 
   private FeatureLayer featureLayer_provinces;
 
-  private int selectionStep = 0;
+  private int selectionStep = 0;  // to keep track of selection
+  private int turnCounter = 0;    // to keep track of turn counter
+
+  private boolean gameFinished = false;
 
   @FXML
   private void initialize() throws JsonParseException, JsonMappingException, IOException {
@@ -105,7 +114,7 @@ public class GloriaRomanusController{
     JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
 
 
-    provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
+    provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
 
     /*
     provinceToOwningFactionMap = getProvinceToOwningFactionMap();
@@ -118,16 +127,32 @@ public class GloriaRomanusController{
     */
     // TODO = load this from a configuration file you create (user should be able to
     // select in loading screen)
-    humanFaction = provinceMap.getFaction("Rome");
+    user1 = provinceMap.getFaction("Rome");
+    user2 = provinceMap.getFaction("Gaul");
 
     currentlySelectedHumanProvince = null;
     currentlySelectedEnemyProvince = null;
+
+    printMessageToTerminal("Player1 : Rome");
+    printMessageToTerminal("Player2: Gaul");
+    printMessageToTerminal("It is player1's turn");
 
     initializeProvinceLayers();
   }
 
   @FXML
   public void clickedInvadeButton(ActionEvent e) throws IOException {
+    if (gameFinished) {
+      return;
+    }
+    if (turnCounter%2 == 0) {
+      humanFaction = user1;
+      enemyFaction = user2;
+    } else {
+      humanFaction = user2;
+      enemyFaction = user1;
+    }
+
     if (currentlySelectedProvince1 != null && currentlySelectedProvince2 != null){
       /*
       String humanProvince = (String)currentlySelectedHumanProvince.getAttributes().get("name");
@@ -135,10 +160,11 @@ public class GloriaRomanusController{
       */
       Province humanProvince = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
       Province enemyProvince = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
-      if (!(humanProvince.getFaction() == humanFaction && enemyProvince.getFaction() != humanFaction)){
+      if (humanProvince.getFaction() != humanFaction || enemyProvince.getFaction() == humanFaction){
         printMessageToTerminal("Incorrect selection of provinces!\n If you would like to invade a province,\n select your province for Province 1 and \n select an enemy province for Province 2");
         resetSelections();  // reset selections in UI
         addAllPointGraphics(); // reset graphics
+        return;
       }
       
       if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())){
@@ -168,13 +194,10 @@ public class GloriaRomanusController{
           // invade by default
           enemyProvince.changeProvinceOwnership(humanFaction);
           humanProvince.moveUnits(enemyProvince);
-          resetSelections();  // reset selections in UI
-          addAllPointGraphics(); // reset graphics
+          endTurn();
           return;
         }
 
-        printMessageToTerminal("humanStrength " + humanStrength);
-        printMessageToTerminal("enemyStrength " + enemyStrength);
         boolean finished = false;
         int numEncounters = 0;
         while (!finished) {
@@ -213,10 +236,7 @@ public class GloriaRomanusController{
           }
 
           for (Unit unit: losingUnits) {
-            printMessageToTerminal("Percentage of loser - " + percentageOfLoser);
-            // printMessageToTerminal("Losing units now "  + (int)((double)unit.getNumTroops()*(1-percentageOfLoser)));
             unit.setNumTroops((int)((double)unit.getNumTroops()*(1-percentageOfLoser)));
-            printMessageToTerminal("Losing units now " + unit.getNumTroops());
           }
 
           humanStrength = 0;
@@ -233,8 +253,6 @@ public class GloriaRomanusController{
             enemyProvince.changeProvinceOwnership(humanFaction);
             humanProvince.moveUnits(enemyProvince);
             printMessageToTerminal("Won battle!");
-            resetSelections();  // reset selections in UI
-            addAllPointGraphics(); // reset graphics
             break;
           } 
           if (humanStrength == 0) {
@@ -242,8 +260,6 @@ public class GloriaRomanusController{
             humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
             enemyProvince.moveUnits(humanProvince);
             printMessageToTerminal("Lost battle!");
-            resetSelections();  // reset selections in UI
-            addAllPointGraphics(); // reset graphics
             break;
           }
 
@@ -257,8 +273,6 @@ public class GloriaRomanusController{
           }
 
           for (Unit unit: winningUnits) {
-            printMessageToTerminal("Percentage of winner - " + percentageOfWinner);
-            // printMessageToTerminal("Winning units now " + (int)((double) unit.getNumTroops()*(1-percentageOfWinner)));
             unit.setNumTroops((int)((double) unit.getNumTroops()*(1-percentageOfWinner)));
             printMessageToTerminal("Winning units now " + unit.getNumTroops());
           }
@@ -277,8 +291,7 @@ public class GloriaRomanusController{
             enemyProvince.changeProvinceOwnership(humanFaction);
             humanProvince.moveUnits(enemyProvince);
             printMessageToTerminal("Won battle!");
-            resetSelections();  // reset selections in UI
-            addAllPointGraphics(); // reset graphics
+            
             break;
           } 
           if (humanStrength == 0) {
@@ -286,8 +299,6 @@ public class GloriaRomanusController{
             humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
             enemyProvince.moveUnits(humanProvince);
             printMessageToTerminal("Lost battle!");
-            resetSelections();  // reset selections in UI
-            addAllPointGraphics(); // reset graphics
             break;
           }
 
@@ -298,45 +309,7 @@ public class GloriaRomanusController{
             break;
           }
         }
-        
-
-        /*
-        // TODO = have better battle resolution than 50% chance of winning
-        Random r = new Random();
-        int choice = r.nextInt(2);
-        if (choice == 0){
-          // human won. Transfer 40% of troops of human over. No casualties by human, but enemy loses all troops
-          int numTroopsToTransfer = humanProvince.getNumTroops() *2/5;
-          
-          provinceToNumberTroopsMap.put(enemyProvince, numTroopsToTransfer);
-          provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsToTransfer);
-          provinceToOwningFactionMap.put(enemyProvince, humanFaction);
-          
-          enemyProvince.setNumTroops(numTroopsToTransfer);
-          humanProvince.addNumTroops(-numTroopsToTransfer);
-          
-          Faction enemyFaction = enemyProvince.getFaction();
-          enemyFaction.removeProvince(enemyProvince);
-          enemyProvince.setFaction(humanFaction);
-          humanFaction.addProvince(enemyProvince);
-          
-          enemyProvince.changeProvinceOwnership(humanFaction);
-          printMessageToTerminal("Won battle!");
-        }
-        else{
-          // enemy won. Human loses 60% of soldiers in the province
-          int numTroopsLost = humanProvince.getNumTroops()*3/5;
-          humanProvince.addNumTroops(-numTroopsLost);
-          // provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsLost);
-          printMessageToTerminal("Lost battle!");
-        }
-        resetSelections();  // reset selections in UI
-        addAllPointGraphics(); // reset graphics
-      }
-      else{
-        printMessageToTerminal("Provinces not adjacent, cannot invade!");
-      }
-      */
+        endTurn();
       } else {
         printMessageToTerminal("Provinces not adjacent, cannot invade!");
       }
@@ -345,12 +318,24 @@ public class GloriaRomanusController{
 
   @FXML
   public void clickedMoveButton(ActionEvent e) throws IOException {
-
+    if (gameFinished) {
+      return;
+    }
+    if (turnCounter%2 == 0) {
+      humanFaction = user1;
+      enemyFaction = user2;
+    } else {
+      humanFaction = user2;
+      enemyFaction = user1;
+    }
     Province moveFrom = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
     Province moveTo = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
 
     if (moveFrom.getFaction() != humanFaction || moveTo.getFaction() != humanFaction) {
       printMessageToTerminal("Please select two provinces which are part of your faction");
+      printMessageToTerminal("province1 faction - " + moveFrom.getFaction().getName());
+      printMessageToTerminal("province2 faction - " + moveTo.getFaction().getName());
+      printMessageToTerminal("humanFaction - " + humanFaction.getName());
       resetSelections();  // reset selections in UI
       addAllPointGraphics(); // reset graphics
       return;
@@ -367,12 +352,41 @@ public class GloriaRomanusController{
       moveFrom.moveUnits(moveTo);
     } else {
       printMessageToTerminal("Not enough movement points to move troops");
+      printMessageToTerminal("requiredMovementPoints - " + requiredMovementPoints);
+      printMessageToTerminal("movementPointsAvaialble - " + movementPointsAvailable);
     }
+    turnCounter ++;
+    enemyFaction = null;
+    humanFaction = null;
+    printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphics
   }
 
+  @FXML
+  public void clickedSaveButton(ActionEvent e) throws IOException {
+    provinceMap.saveGame(turnCounter);
+    printMessageToTerminal("Saved Game!");
+    return;
+  }
 
+  @FXML
+  public void clickedLoadButton(ActionEvent e) throws IOException {
+    
+    turnCounter = provinceMap.loadGame();
+    user1 = provinceMap.getFaction(user1.getName());
+    user2 = provinceMap.getFaction(user2.getName());
+    addAllPointGraphics(); // reset graphics
+    
+    printMessageToTerminal("Loaded game from save!");
+    printMessageToTerminal("It is currently player" + (turnCounter%2 + 1) + "'s turn.");
+
+  }
+
+  @FXML
+  public void clickedResetButton(ActionEvent e) throws IOException {
+    addAllPointGraphics(); // reset graphics
+  }
 
   /**
    * run this initially to update province owner, change feature in each
@@ -426,7 +440,7 @@ public class GloriaRomanusController{
 
         String text = faction.getName() + "\n" + province.getName() + "\n";
         for (Unit unit: province.getUnits()) {
-           text += unit.getName() + " - " + unit.getNumTroops() + "\n";
+           text += unit.getType() + " - " + unit.getNumTroops() + "\n";
         }
 
         TextSymbol t = new TextSymbol(10,
@@ -618,6 +632,7 @@ public class GloriaRomanusController{
     invading_province.setText("");
     opponent_province.setText("");
     */
+    selectionStep = 0;
     currentlySelectedProvince1 = null;
     currentlySelectedProvince2 = null;
     province_1.setText("");
@@ -636,5 +651,20 @@ public class GloriaRomanusController{
     if (mapView != null) {
       mapView.dispose();
     }
+  }
+
+  private void endTurn() throws JsonParseException, JsonMappingException, IOException {
+    if (provinceMap.checkWinner() != null) {
+      Faction winningFaction = provinceMap.checkWinner();
+      printMessageToTerminal("GAME END\n" +"Winner: " + winningFaction.getName());
+      gameFinished = true;
+
+    }
+    turnCounter++;
+    humanFaction = null;
+    enemyFaction = null;
+    printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
+    resetSelections();  // reset selections in UI
+    addAllPointGraphics(); // reset graphic
   }
 }

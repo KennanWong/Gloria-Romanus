@@ -49,4 +49,7 @@ public class Faction {
         }
         return provinceList;
     }
+    public Map<String, Province> getProvinces() {
+        return provinces;
+    }
 }
