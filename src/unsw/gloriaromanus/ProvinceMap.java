@@ -116,7 +116,6 @@ public class ProvinceMap {
 
         }
 
-
         if (distanceFromInit.get(province2.getName()) != 0) {
             return distanceFromInit.get(province2.getName());
         } else {

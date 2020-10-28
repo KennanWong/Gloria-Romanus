@@ -49,7 +49,7 @@ public class Unit {
      * @throws IOException
      */
     public Unit(String typeOfTroop, int numTroops) throws IOException {
-        String unitConfigurationContent = Files.readString(Paths.get("src/unsw/gloriaromanus/unit_configuration.json"));
+        String unitConfigurationContent = Files.readString(Paths.get("src/ConfigFiles/unit_configuration.json"));
         JSONObject unitConfiguration = new JSONObject(unitConfigurationContent);
         JSONObject unitStat = unitConfiguration.getJSONObject(typeOfTroop);
         this.numTroops = numTroops;

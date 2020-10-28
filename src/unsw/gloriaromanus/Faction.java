@@ -52,4 +52,8 @@ public class Faction {
     public Map<String, Province> getProvinces() {
         return provinces;
     }
+
+    public Province getProvince(String name) {
+        return provinces.get(name);
+    }
 }
