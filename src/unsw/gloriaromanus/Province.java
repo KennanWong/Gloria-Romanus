@@ -20,12 +20,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+
 public class Province {
     private String name;
     private Faction faction;
     private List<Unit> units;
     private String roadLevel;
     private int movementPointsReq;
+    private boolean locked = false;
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
@@ -35,8 +38,10 @@ public class Province {
         this.faction = faction;
         Random r = new Random();
         this.units = new ArrayList<>();
+        /*
         Unit firstUnit = new Unit("Swordsmen", r.nextInt(500));
         units.add(firstUnit);
+        */
         this.roadLevel = "No roads";
         this.movementPointsReq = 4;
     }
@@ -91,6 +96,22 @@ public class Province {
 
     public void addNumTroops(int numTroops) {
         this.numTroops += numTroops;
+    }
+
+    public void lockDownProvince() {
+        locked = true;
+    }
+
+    public void unlockProvince() {
+        locked = false;
+    }
+
+    public String getRoadLevel() {
+        return roadLevel;
+    }
+    
+    public boolean isLocked() {
+        return locked;
     }
 
     public void changeProvinceOwnership(Faction newOwner) {
