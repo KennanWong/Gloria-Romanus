@@ -68,7 +68,7 @@ public class GloriaRomanusController{
   @FXML
   private TextArea output_terminal;
   @FXML
-  private TextArea command_terminal;
+  private TextArea province_info_terminal;
 
   private ArcGISMap map;
 
@@ -97,6 +97,8 @@ public class GloriaRomanusController{
   private TextField province_1;
   @FXML
   private TextField province_2;
+  @FXML
+  private TextField building_type;
 
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
@@ -219,6 +221,12 @@ public class GloriaRomanusController{
       humanFaction = user2;
       enemyFaction = user1;
     }
+    if (currentlySelectedProvince1 == null || currentlySelectedProvince2 == null) {
+      printMessageToTerminal("Please select two provinces");
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphics
+      return;
+    }
     Province moveFrom = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
     Province moveTo = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
 
@@ -290,6 +298,28 @@ public class GloriaRomanusController{
   @FXML
   public void clickedEndTurnButton(ActionEvent e) throws IOException {
     endTurn();
+  }
+
+
+  @FXML 
+  public void clickedAddBuildingButton(ActionEvent e) throws IOException {
+    if (currentlySelectedProvince1 == null) {
+      printMessageToTerminal("Please select a province");
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphics
+      return;
+    }
+    String buildingType = building_type.getText();
+    if (turnCounter%2 == 0) {
+      humanFaction = user1;
+      enemyFaction = user2;
+    } else {
+      humanFaction = user2;
+      enemyFaction = user1;
+    }
+    
+    Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+    printMessageToTerminal(province.addBuilding(buildingType));
   }
 
   /**
@@ -438,13 +468,14 @@ public class GloriaRomanusController{
                   }
                   currentlySelectedProvince1 = f;
                   province_1.setText(province.getName());
-
+                  displaySelection(currentlySelectedProvince1);
                 } else {
                   if (currentlySelectedProvince2 != null) {
                     featureLayer.unselectFeature(currentlySelectedProvince2);
                   }
                   currentlySelectedProvince2 = f;
                   province_2.setText(province.getName());
+                  displaySelection(currentlySelectedProvince2);
                 }
                 selectionStep += 1;
                 featureLayer.selectFeature(f);                
@@ -534,9 +565,6 @@ public class GloriaRomanusController{
     output_terminal.appendText(message+"\n");
   }
 
-  private void clearCommandTerminal() {
-    command_terminal.clear();
-  }
   /**
    * Stops and releases all resources used in application.
    */
@@ -564,5 +592,19 @@ public class GloriaRomanusController{
     printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
+  }
+
+  public void displaySelection(Feature selectedProvince) {
+    if (selectedProvince == null) {
+      return;
+    }
+    Province province = provinceMap.getProvince((String)selectedProvince.getAttributes().get("name"));
+    province_info_terminal.clear();
+    province_info_terminal.appendText(province.getName() + "\n");
+    province_info_terminal.appendText("Road level: " + province.getRoadLevel() + "\n");
+    province_info_terminal.appendText("Units: \n");
+    for (Unit unit: province.getUnits()) {
+      province_info_terminal.appendText("\t" + unit.getType() + ": " + unit.getNumTroops() + " troops\n");
+    }
   }
 }
