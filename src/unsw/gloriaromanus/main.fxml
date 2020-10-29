@@ -35,18 +35,33 @@
         </background>
         <HBox>
             <VBox>
-                <Label text="Your province"/>
-                <TextField fx:id="invading_province" text="" editable="false"/>
+                <Label text="Province 1"/>
+                <TextField fx:id="province_1" text="" editable="false"/>
             </VBox>
             <VBox>
-                <Label text="Enemy province"/>
-                <TextField fx:id="opponent_province" text="" editable="false"/>
+                <Label text="Province 2"/>
+                <TextField fx:id="province_2" text="" editable="false"/>
             </VBox>
         </HBox>
         <Button text="Invade" onAction="#clickedInvadeButton"/>
+        <Button text="Move Troops" onAction="#clickedMoveButton"/>
+        <Button text="End turn" onAction="#clickedEndTurnButton"/>
+        <Button text="Save Game" onAction="#clickedSaveButton"/>
+        <Button text="Load Game" onAction="#clickedLoadButton"/>
+        <Button text="Reset View" onAction="#clickedResetButton"/>
         <VBox>
             <Label text="Output from interactions"/>
             <TextArea fx:id="output_terminal" text="" editable="false"/>
         </VBox>
+        <VBox>
+            <Label text="Info about selected province"/>
+            <TextArea fx:id="province_info_terminal" text="" editable="false"/>
+        </VBox>
+        <VBox>
+            <Label text="Building Type"/>
+            <TextField fx:id="building_type" text="" editable="true"/>
+            <Button text="Add Building" onAction="#clickedAddBuildingButton"/>
+        </VBox>
+        
     </VBox>
 </StackPane>
