@@ -1,6 +1,9 @@
 package unsw.gloriaromanus;
 
+<<<<<<< HEAD
 import unsw.gloriaromanus.economy.*;
+=======
+>>>>>>> infrastructure
 import unsw.gloriaromanus.infrastructure.*;
 
 import java.io.File;
@@ -288,9 +291,13 @@ public class Province {
 
     public void update() {
         //update the province accordingly per turn
+<<<<<<< HEAD
         //TODO
         //if taxrate was changed, implement accordingly
 
+=======
+        //incomplete
+>>>>>>> infrastructure
         for (Building building : this.allBuildings) {
             if (building.isBuilt()) {
                 continue;
@@ -298,6 +305,7 @@ public class Province {
                 building.update();
             }
         }
+<<<<<<< HEAD
 
         //Different tax rates have different effects
         
@@ -305,6 +313,8 @@ public class Province {
 
     public void recruitSoldier() {
         //TODO
+=======
+>>>>>>> infrastructure
     }
 
 
