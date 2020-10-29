@@ -9,7 +9,11 @@ public class Treasury {
 
     //update function checks the province's commands for that round
     public void update() {
-        //check with the other 
+        //check the taxrate
+    }
+
+    public void changeTaxRate() {
+
     }
 }
 
