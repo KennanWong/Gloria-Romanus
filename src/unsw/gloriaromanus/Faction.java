@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.Math;
+
 public class Faction {
     private String name;
     private Map<String, Province> provinces;
@@ -65,5 +67,13 @@ public class Faction {
 
     public void setTreasury(int gold) {
         this.treasury = gold;
+    }
+
+    public void addGold(double gold) {
+        this.treasury += Math.round(gold);
+    }
+
+    public void removeGold(double gold) {
+        this.treasury -= Math.round(gold);
     }
 }
