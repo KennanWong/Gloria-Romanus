@@ -97,6 +97,9 @@ public abstract class Building {
         this.built = false;
     }
 
+    public String getType() {
+        return type;
+    }
 
 
 }
