@@ -31,7 +31,7 @@ public class Province {
     private String roadLevel;
     private int movementPointsReq;
     private boolean locked = false;
-    private ArrayList<Building> allBuildings;
+    private ArrayList<Building> buildings;
     private ArrayList<TroopBuilding> troopBuildings;
     //private ArrayList<WealthBuilding> wealthBuildings;
 
@@ -49,7 +49,7 @@ public class Province {
         
         this.roadLevel = "No roads";
         this.movementPointsReq = 4;
-        allBuildings = new ArrayList<>();
+        buildings = new ArrayList<>();
         troopBuildings = new ArrayList<>();
     }
 
@@ -98,6 +98,12 @@ public class Province {
     }
 
     public void addUnit(Unit newUnit) {
+        for (Unit unit: units) {
+            if (unit.getType().equals(newUnit.getType())) {
+                unit.setNumTroops(unit.getNumTroops() + newUnit.getNumTroops());
+                return;
+            } 
+        }
         units.add(newUnit);
     }
 
@@ -154,12 +160,7 @@ public class Province {
     public void moveUnits(Province toProvince) {
         List<Unit> currUnits = this.units;
         for (Unit unit : currUnits) {
-            Unit inNewProvince = toProvince.getUnitOfType(unit.getType());
-            if (inNewProvince != null) {
-                inNewProvince.setNumTroops(unit.getNumTroops() + inNewProvince.getNumTroops());
-            } else {
-                toProvince.addUnit(unit);
-            }
+            toProvince.addUnit(unit);
         }
         units.clear();
     }
@@ -186,8 +187,8 @@ public class Province {
             unitsJSON.put(unit.getUnitAsJson());
         }
         JSONArray buildingsJSON = new JSONArray();
-        for (Building building : allBuildings) {
-            
+        for (Building building : buildings) {
+
         }
 
         provinceJSON.put("units", unitsJSON);
@@ -220,7 +221,7 @@ public class Province {
      * @param building
      * @return
      */
-    public String addBuilding(String building) throws IOException {
+    public String addBuilding(String building, int turnNumber) throws IOException {
         //check if any building is currently being constructed in this province
         if (underConstruction()) {
             String s = "A building is already being constructed!";
@@ -236,18 +237,18 @@ public class Province {
         //create the building and add it to our lists of buildings
         switch (building) {
             case "Infantry":
-                Infantry i = new Infantry(costReduction, buildTimeReduction);
-                this.allBuildings.add(i);
+                Infantry i = new Infantry(costReduction, buildTimeReduction, turnNumber);
+                this.buildings.add(i);
                 this.troopBuildings.add(i);
                 break;
             case "Cavalry":
-                Cavalry c = new Cavalry(costReduction, buildTimeReduction);
-                this.allBuildings.add(c);
+                Cavalry c = new Cavalry(costReduction, buildTimeReduction, turnNumber);
+                this.buildings.add(c);
                 this.troopBuildings.add(c);
                 break;
             case "Artillery":
-                Artillery a = new Artillery(costReduction, buildTimeReduction);
-                this.allBuildings.add(a);
+                Artillery a = new Artillery(costReduction, buildTimeReduction, turnNumber);
+                this.buildings.add(a);
                 this.troopBuildings.add(a);
                 break;
             /*
@@ -274,7 +275,7 @@ public class Province {
     }
 
     private boolean underConstruction() {
-        for (Building building : this.allBuildings) {
+        for (Building building : this.buildings) {
             if (building.getBuildTime() != 0) {
                 return true;
             }
@@ -282,16 +283,24 @@ public class Province {
         return false;
     }
 
+    /**
+     * Method to update a province, it should take in a turn number and update buildings and troop
+     * number accordingly
+     * @param turnNumber
+     */
     public void update() {
-        //update the province accordingly per turn
-        //incomplete
-        for (Building building : this.allBuildings) {
+        // check for updates to buildings
+        for (Building building : this.buildings) {
             if (building.isBuilt()) {
                 continue;
             } else {
                 building.update();
             }
         }
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
     }
 
 

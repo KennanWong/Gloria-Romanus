@@ -64,4 +64,8 @@
         </VBox>
         
     </VBox>
+
+    <VBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" styleClass="panel-region">
+        <TextField fx:id="turn_number" text="" editable="false"/>
+    </VBox>
 </StackPane>

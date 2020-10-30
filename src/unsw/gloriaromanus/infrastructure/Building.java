@@ -30,13 +30,19 @@ public abstract class Building {
     private boolean built; 
     private int level;
     private String type;
+    private int turnNumber;
+    private String status;      // Possible statuses: Being built, Training, Idle
 
     //gets called after every turn, and the building lowers it's build time
     public void update() {
-        if (this.buildTime != 0) {
-            this.buildTime = this.buildTime - 1;
+        if (built) {
+            return;
         } else {
-            this.built = true;
+            buildTime -= 1;
+        }
+        if (buildTime == 0) {
+            built = true;
+            status = "Idle";
         }
 
     }
@@ -82,19 +88,36 @@ public abstract class Building {
         return this.built;
     }
 
-    public Building(String type, double costMultiplier, int buildTimeReduction) throws IOException {
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+    
+    public String getType() {
+        return type;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public int getTurnAvailable() {
+        return turnNumber + buildTime;
+    }
+
+    public Building(String type, double costMultiplier, int buildTimeReduction, int turnNumber) throws IOException {
         String buildingConfigurationContent = Files.readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
         JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
         JSONArray level = buildingType.getJSONArray("level");
         JSONObject buildStats = level.getJSONObject(0);
-
         //int cost = Integer.parseInt(buildStats.getString("cost");
         //this.cost = Math.round(cost*costMultiplier);
         int buildTime = buildStats.getInt("buildTime");
+        this.type = type;
         this.buildTime = buildTime - buildTimeReduction;
         this.level = 0;
         this.built = false;
+        status = "Being built";
     }
 
 
