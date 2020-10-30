@@ -1,6 +1,5 @@
 package unsw.gloriaromanus;
 
-import unsw.gloriaromanus.economy.*;
 import unsw.gloriaromanus.infrastructure.*;
 
 import java.io.File;
