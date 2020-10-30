@@ -102,6 +102,8 @@ public class GloriaRomanusController{
   private TextField province_2;
   @FXML
   private TextField building_type;
+  @FXML
+  private TextField troop_field;          // use this field for the type of troops and number of troops
 
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
@@ -324,9 +326,55 @@ public class GloriaRomanusController{
     }
     
     Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
-    printMessageToTerminal(province.addBuilding(buildingType, turnCounter));
+    if (province.getFaction() == humanFaction) {
+      printMessageToTerminal(province.addBuilding(buildingType));
+    } else {
+      printMessageToTerminal("Unable to add a building to a province you do not own!");
+    }
+    
+    building_type.clear();
     resetSelections();
     addAllPointGraphics();
+  }
+
+  @FXML
+  public void clickedRecruitTroopButton(ActionEvent e) throws IOException {
+    if (currentlySelectedProvince1 == null) {
+      printMessageToTerminal("Please select a province");
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphics
+      return;
+    }
+    if (turnCounter%2 == 0) {
+      humanFaction = user1;
+      enemyFaction = user2;
+    } else {
+      humanFaction = user2;
+      enemyFaction = user1;
+    }
+    String[] troopRequest = troop_field.getText().split(" ");
+
+    if (troopRequest.length != 2) {
+      printMessageToTerminal("Invalid troop request");
+      printMessageToTerminal("Please make a troop request as follows: ");
+      printMessageToTerminal("(int)numTroops, (String)troopType");
+      return;
+    }
+
+    printMessageToTerminal(troopRequest[0]);
+    int numTroops = Integer.parseInt(troopRequest[0]);
+    String troopType = troopRequest[1];
+
+    Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+    if (province.getFaction() == humanFaction) {
+      printMessageToTerminal(province.recruitSoldier(troopType, numTroops));
+    } else {
+      printMessageToTerminal("Unable to recruit a troop in a province you do not own!");
+    }
+    troop_field.clear();
+    resetSelections();  // reset selections in UI
+    addAllPointGraphics(); // reset graphics
+
   }
 
   /**
@@ -565,7 +613,7 @@ public class GloriaRomanusController{
       province_1.setText("");
       province_2.setText("");
     }
-    
+    province_info_terminal.clear();
   }
 
   private void printMessageToTerminal(String message){
@@ -597,6 +645,7 @@ public class GloriaRomanusController{
       gameFinished = true;
 
     }
+    //Update all the provinces
     for (Province province : lockedProvinces) {
       province.unlockProvince();
     }
@@ -628,16 +677,22 @@ public class GloriaRomanusController{
       province_info_terminal.appendText("\t"+ building.getType() + ": ");
       switch (building.getStatus()) {
         case "Being built":
-          province_info_terminal.appendText(building.getStatus() + ", avaialble in turn " + 
-                                            building.getTurnAvailable() + "\n");
+          province_info_terminal.appendText(building.getStatus() + ", avaialble in " + 
+                                            building.getTurnAvailable() + " turns\n");
           break;
         case "Training":
-          province_info_terminal.appendText(building.getStatus() +" soldiers.\n");
+          province_info_terminal.appendText(building.getStatus() +" soldiers.\n Available in "+ building.getUnitBeingTrained().getTurnsToTrain() + "\n");
           break;
         case "Idle" :
           province_info_terminal.appendText(building.getStatus() + "\n");
           break;
       }
     }
+  }
+
+  //GIven our selected province, generate a unit object and see if we can add it
+  private void addSoldier(String soldier, int numTroops, Province province) throws IOException {
+    Unit newUnit = new Unit(soldier, numTroops);
+    province.addUnit(newUnit);
   }
 }

@@ -1,10 +1,12 @@
 package unsw.gloriaromanus.infrastructure;
 import java.io.IOException;
 
-public class Infantry extends Building implements TroopBuilding {
+import unsw.gloriaromanus.*;
 
-    public Infantry(double costMultiplier, int buildTimeReduction, int turnNumber) throws IOException {
-        super("Infantry", costMultiplier, buildTimeReduction, turnNumber);
+public class Infantry extends Building {
+
+    public Infantry(double costMultiplier, int buildTimeReduction, Province province) throws IOException {
+        super("Infantry", costMultiplier, buildTimeReduction, province);
     }
 
 

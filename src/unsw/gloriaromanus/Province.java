@@ -32,7 +32,11 @@ public class Province {
     private int movementPointsReq;
     private boolean locked = false;
     private ArrayList<Building> buildings;
-    private ArrayList<TroopBuilding> troopBuildings;
+    private ArrayList<Building> troopBuildings;
+    private int provinceWealth; //total wealth of the province
+    private String taxLevel; //low med high very high
+    private int growth; //gold gained per turn
+    private double taxRate; // a multiplier between 0 and 1
     //private ArrayList<WealthBuilding> wealthBuildings;
 
     // \/ temporary just to ensure implementation is correct
@@ -98,6 +102,7 @@ public class Province {
     }
 
     public void addUnit(Unit newUnit) {
+        newUnit.setTurnsToTrain(0);
         for (Unit unit: units) {
             if (unit.getType().equals(newUnit.getType())) {
                 unit.setNumTroops(unit.getNumTroops() + newUnit.getNumTroops());
@@ -188,9 +193,9 @@ public class Province {
         }
         JSONArray buildingsJSON = new JSONArray();
         for (Building building : buildings) {
-
+            buildingsJSON.put(building.getBuildingAsJSON());
         }
-
+        provinceJSON.put("buildings", buildingsJSON);
         provinceJSON.put("units", unitsJSON);
         provinceJSON.put("roadLevel", roadLevel);
         provinceJSON.put("movementPointsReq", movementPointsReq);
@@ -208,6 +213,12 @@ public class Province {
             unit.setUnitFromJSON(unitJSON);
             addUnit(unit);
         }
+        JSONArray buildingsJSON = json.getJSONArray("buildings");
+        for (int i = 0; i < buildingsJSON.length(); i++ ) {
+            JSONObject buildingJSON = buildingsJSON.getJSONObject(i);
+            addBuilding(buildingJSON.getString("type"));
+            buildings.get(i).setBuildingFromJSON(buildingJSON);
+        }
 
         // set the infrastructure of the units
         roadLevel = json.getString("roadLevel");
@@ -221,7 +232,7 @@ public class Province {
      * @param building
      * @return
      */
-    public String addBuilding(String building, int turnNumber) throws IOException {
+    public String addBuilding(String building) throws IOException {
         //check if any building is currently being constructed in this province
         if (underConstruction()) {
             String s = "A building is already being constructed!";
@@ -237,20 +248,20 @@ public class Province {
         //create the building and add it to our lists of buildings
         switch (building) {
             case "Infantry":
-                Infantry i = new Infantry(costReduction, buildTimeReduction, turnNumber);
+                Infantry i = new Infantry(costReduction, buildTimeReduction, this);
                 this.buildings.add(i);
                 this.troopBuildings.add(i);
-                break;
+                return "Construction began sucessfully!";
             case "Cavalry":
-                Cavalry c = new Cavalry(costReduction, buildTimeReduction, turnNumber);
+                Cavalry c = new Cavalry(costReduction, buildTimeReduction, this);
                 this.buildings.add(c);
                 this.troopBuildings.add(c);
-                break;
+                return "Construction began sucessfully!";
             case "Artillery":
-                Artillery a = new Artillery(costReduction, buildTimeReduction, turnNumber);
+                Artillery a = new Artillery(costReduction, buildTimeReduction, this);
                 this.buildings.add(a);
                 this.troopBuildings.add(a);
-                break;
+                return "Construction began sucessfully!";
             /*
             case "Mine":
                 
@@ -270,7 +281,7 @@ public class Province {
             */
         }
 
-        String s = "Construction began sucessfully!";
+        String s = "Could not build building of type " + building + "!";
         return s;
     }
 
@@ -291,19 +302,92 @@ public class Province {
     public void update() {
         // check for updates to buildings
         for (Building building : this.buildings) {
-            if (building.isBuilt()) {
-                continue;
-            } else {
-                building.update();
-            }
+            building.update();
         }
+
+        //tax rates would have been controlled in controller
+        //the new tax rate would be shown first
+        //then when they end turn the effects will follow
+
+        //Different tax rates have different effects
+        // applyTaxRateEffects();
+        
     }
 
     public List<Building> getBuildings() {
         return buildings;
     }
 
+    private void applyTaxRateEffects() {
+        switch (this.taxLevel) {
+            case "Low":
+                this.growth = 10;
+                this.taxRate = 0.10;
+                this.faction.addGold(0.10*this.provinceWealth + 10);
+                break;
+            case "Medium":
+                this.growth = 0;
+                this.taxRate = 0.15;
+                this.faction.addGold(0.15*this.provinceWealth);
+                break;
+            case "High":
+                this.growth = -10;
+                this.taxRate = 0.20;
+                this.faction.addGold(0.20*this.provinceWealth - 10);
+                break;
+            case "Very High":
+                this.growth = -30;
+                this.taxRate = 0.25;
+                this.faction.addGold(0.25*this.provinceWealth - 30);
+                for (Unit unit : this.units) {
+                    unit.setMorale(unit.getMorale() - 1);
+                }
+                break;
+        }
+    }
 
+    public String recruitSoldier(String unitType, int numTroops) throws IOException {
+        Unit newUnit = new Unit(unitType, numTroops);
 
+        /*
+        // TODO implement cost of soldiers first
+        //check if we have enough money
+        if (unit.getCost()*unit.getNumTroops() > getFaction().getTreasury()) {
+            String s = "Not enough gold!";
+            return s;
+        }
+        */
+        
+        //check if we have the right building and building level to create this troop
+        Building buildingAvailable = null;
+        ArrayList<Building> troopBuilding = (ArrayList<Building>) this.troopBuildings;
+        for (Building building : troopBuilding) {
+            /*
+            if (building.getType() == unit.getCategory() && building.getLevel() == unit.getLevel()) {
+                buildingAvailable = true;
+            }
+            */
+            if (building.getType().equals(newUnit.getCategory()) && building.isBuilt()) {
+                if (building.getStatus().equals("Training")) {
+                    return "Currently training soldiers";
+                }
+                buildingAvailable = building;
+                break;
+            }
+        }
 
+        if (buildingAvailable == null) {
+            String s = "You don't have the right building to train this troop!";
+            return s;
+        }
+
+        //add the troop and substract the money
+        // need to account for soldier training time
+        buildingAvailable.trainingUnit(newUnit);
+        // this.faction.removeGold(unit.getCost());
+
+        String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
+                    + "\n Will begin training.";
+        return s;
+    }
 }

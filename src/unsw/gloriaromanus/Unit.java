@@ -40,7 +40,9 @@ public class Unit {
     private int defenseSkill;   // skill to defend in battle. Does not protect from arrows!
     private int shieldDefense;  // a shield
     private int movementPoints; // movement points of the unit
-
+    private int cost;           // cost of the troop type
+    private int level;          // building level that is required to produce this troop
+    private int turnsToTrain;   // number of turns required to train this troop RN defaults to 1;
     /**
      * Constructor for a unit class. Provide the typeOfTroop and the number of those troops, and it will pull from a configuration
      * file to fill in the appropriate statistics
@@ -78,6 +80,9 @@ public class Unit {
         attackType = unitStat.getString("attackType");
         defenseSkill = unitStat.getInt("defenseSkill");
         shieldDefense = unitStat.getInt("shieldDefense");
+        turnsToTrain = 1;
+        // cost = unitStat.getInt("cost");
+        // level = unitStat.getInt("level");
     }
 
     public int getNumTroops(){
@@ -100,12 +105,35 @@ public class Unit {
         return category;
     }
 
+    public int getTurnsToTrain() {
+        return turnsToTrain;
+    }
+
+    public void setTurnsToTrain(int turnsToTrain) {
+        this.turnsToTrain = turnsToTrain;
+    }
+
     public void setNumTroops(int numTroops) {
         this.numTroops = numTroops;
     }
 
     public String getType() {
         return type;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public int getMorale() {
+        return morale;
+    }
+    public void setMorale(int morale) {
+        this.morale = morale;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public JSONObject getUnitAsJson() {
@@ -122,7 +150,8 @@ public class Unit {
         unitJSON.put("defenseSkill", defenseSkill);
         unitJSON.put("shieldDefense", shieldDefense);
         unitJSON.put("movementPoints", movementPoints);
-
+        // unitJSON.put("cost", cost);
+        // unitJSON.put("level", level);
         return unitJSON;
 
     }
@@ -138,5 +167,7 @@ public class Unit {
         defenseSkill = json.getInt("defenseSkill");
         shieldDefense = json.getInt("shieldDefense");
         movementPoints = json.getInt("movementPoints");
+        // cost = json.getInt("cost");
+        // level = json.getInt("level");
     }
 }
