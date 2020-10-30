@@ -43,8 +43,7 @@
                 <TextField fx:id="province_2" text="" editable="false"/>
             </VBox>
         </HBox>
-        <Button text="Invade" onAction="#clickedInvadeButton"/>
-        <Button text="Move Troops" onAction="#clickedMoveButton"/>
+        <Button text="Invade" onAction="#clickedInvadeButton"/><Button text="Move Troops" onAction="#clickedMoveButton"/>
         <Button text="End turn" onAction="#clickedEndTurnButton"/>
         <Button text="Save Game" onAction="#clickedSaveButton"/>
         <Button text="Load Game" onAction="#clickedLoadButton"/>
@@ -62,10 +61,15 @@
             <TextField fx:id="building_type" text="" editable="true"/>
             <Button text="Add Building" onAction="#clickedAddBuildingButton"/>
         </VBox>
+        <VBox>
+            <Label text="Recruit Request"/>
+            <TextField fx:id="troop_field" text="" editable="true"/>
+            <Button text="Request troops" onAction="#clickedRecruitTroopButton"/>
+        </VBox>
         
     </VBox>
 
-    <VBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" styleClass="panel-region">
+    <VBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" maxHeight="30" styleClass="panel-region">
         <TextField fx:id="turn_number" text="" editable="false"/>
     </VBox>
 </StackPane>

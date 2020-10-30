@@ -8,7 +8,8 @@
         "attackType": "melee",
         "attack": 4,
         "defenseSkill": 3,
-        "shieldDefense": 3
+        "shieldDefense": 3,
+        "cost": 20
     },
     "Horse Heavy Cavalry" : {
         "category" : "Cavalry",
@@ -19,7 +20,8 @@
         "attackType": "melee",
         "attack": 10,
         "defenseSkill": 10,
-        "shieldDefense": 10 
+        "shieldDefense": 10,
+        "cost": 30 
     },
     "Horse Lancer" : {
         "category" : "Cavalry",
@@ -30,7 +32,8 @@
         "attackType": "melee",
         "attack": 8,
         "defenseSkill": 10,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 30
     },
     "Camel Archer" : {
         "category" : "Artillery",
@@ -41,7 +44,8 @@
         "attackType": "ranged",
         "attack": 8,
         "defenseSkill": 8,
-        "shieldDefense": 8
+        "shieldDefense": 8,
+        "cost": 50
     },
     "Elephant Archer" : {
         "category" : "Artillery",
@@ -52,7 +56,8 @@
         "attackType": "ranged",
         "attack": 10,
         "defenseSkill": 10,
-        "shieldDefense": 10
+        "shieldDefense": 10,
+        "cost": 80
     },
     "Horse archer" : {
         "category" : "Artillery",
@@ -63,7 +68,8 @@
         "attackType": "ranged",
         "attack": 8,
         "defenseSkill": 5,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 80
     },
     "Druid" : {
         "category" : "Infantry",
@@ -74,7 +80,8 @@
         "attackType": "range",
         "attack": 10,
         "defenseSkill": 2,
-        "shieldDefense": 2
+        "shieldDefense": 2,
+        "cost": 10
     },
     "Hoplite" : {
         "category" : "Infantry",
@@ -85,7 +92,8 @@
         "attackType": "melee",
         "attack": 8,
         "defenseSkill": 10,
-        "shieldDefense": 10
+        "shieldDefense": 10,
+        "cost": 20
     },
     "Net Fighter" : {
         "category" : "Infantry",
@@ -96,7 +104,8 @@
         "attackType": "melee",
         "attack": 4,
         "defenseSkill": 5,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 10
     },
     "Pikemen" : {
         "category" : "Infantry",
@@ -107,7 +116,8 @@
         "attackType": "melee",
         "attack": 6,
         "defenseSkill": 10,
-        "shieldDefense": 6
+        "shieldDefense": 6,
+        "cost": 10
     },
     "Swordsmen" : {
         "category" : "Infantry",
@@ -118,7 +128,8 @@
         "attackType": "melee",
         "attack": 10,
         "defenseSkill": 10,
-        "shieldDefense": 10
+        "shieldDefense": 10,
+        "cost": 10
     },
     "Missile Infantry" : {
         "category" : "Artillery",
@@ -129,7 +140,8 @@
         "attackType": "ranged",
         "attack": 15,
         "defenseSkill": 3,
-        "shieldDefense": 3
+        "shieldDefense": 3,
+        "cost": 20
     },
     "Spearmen" : {
         "category" : "Artillery",
@@ -140,7 +152,8 @@
         "attackType": "ranged",
         "attack": 10,
         "defenseSkill": 5,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 15
     },
     "Archermen" : {
         "category" : "Artillery",
@@ -151,7 +164,8 @@
         "attackType": "ranged",
         "attack": 8,
         "defenseSkill": 5,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 15
     },
     "Cannon" : {
         "category" : "Artillery",
@@ -162,7 +176,8 @@
         "attackType": "ranged",
         "attack": 17,
         "defenseSkill": 3,
-        "shieldDefense": 3
+        "shieldDefense": 3,
+        "cost": 30
     },
     "Crossbowman" : {
         "category" : "Artillery",
@@ -173,7 +188,8 @@
         "attackType": "ranged",
         "attack": 8,
         "defenseSkill": 5,
-        "shieldDefense": 5
+        "shieldDefense": 5,
+        "cost": 20
     },
     "Trebuchet" : {
         "category" : "Artillery",
@@ -184,7 +200,8 @@
         "attackType": "ranged",
         "attack": 20,
         "defenseSkill": 2,
-        "shieldDefense": 2
+        "shieldDefense": 2,
+        "cost": 50
     }
     
 }

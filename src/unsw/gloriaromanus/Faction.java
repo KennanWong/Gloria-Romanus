@@ -19,13 +19,17 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.Math;
+
 public class Faction {
     private String name;
     private Map<String, Province> provinces;
+    private int treasury;
 
     public Faction (String name) {
         this.name = name;
         this.provinces = new HashMap<String, Province>();
+        this.treasury = 500;
     }
 
     public String getName() {
@@ -55,5 +59,21 @@ public class Faction {
 
     public Province getProvince(String name) {
         return provinces.get(name);
+    }
+
+    public int getTreasury() {
+        return treasury;
+    }
+
+    public void setTreasury(int gold) {
+        this.treasury = gold;
+    }
+
+    public void addGold(double gold) {
+        this.treasury += Math.round(gold);
+    }
+
+    public void removeGold(double gold) {
+        this.treasury -= Math.round(gold);
     }
 }
