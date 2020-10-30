@@ -40,7 +40,7 @@ public class Unit {
     private int defenseSkill;   // skill to defend in battle. Does not protect from arrows!
     private int shieldDefense;  // a shield
     private int movementPoints; // movement points of the unit
-
+    private int cost;           // cost of the troop
     /**
      * Constructor for a unit class. Provide the typeOfTroop and the number of those troops, and it will pull from a configuration
      * file to fill in the appropriate statistics
@@ -78,6 +78,7 @@ public class Unit {
         attackType = unitStat.getString("attackType");
         defenseSkill = unitStat.getInt("defenseSkill");
         shieldDefense = unitStat.getInt("shieldDefense");
+        cost = unitStat.getInt("cost");
     }
 
     public int getNumTroops(){
@@ -108,6 +109,10 @@ public class Unit {
         return type;
     }
 
+    public int getCost() {
+        return cost;
+    }
+
     public JSONObject getUnitAsJson() {
         JSONObject unitJSON = new JSONObject();
         unitJSON.put("type", type);
@@ -122,7 +127,7 @@ public class Unit {
         unitJSON.put("defenseSkill", defenseSkill);
         unitJSON.put("shieldDefense", shieldDefense);
         unitJSON.put("movementPoints", movementPoints);
-
+        unitJSON.put("cost", cost);
         return unitJSON;
 
     }
@@ -138,5 +143,6 @@ public class Unit {
         defenseSkill = json.getInt("defenseSkill");
         shieldDefense = json.getInt("shieldDefense");
         movementPoints = json.getInt("movementPoints");
+        cost = json.getInt("cost");
     }
 }
