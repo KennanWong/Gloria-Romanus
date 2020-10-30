@@ -196,4 +196,10 @@ public class ProvinceMap {
 
         return tmp;
     }
+
+    public void updateMap() {
+        for (Province province : provinces.values()) {
+            province.update();
+        }
+    }
 }

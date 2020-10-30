@@ -56,6 +56,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import unsw.gloriaromanus.Commands.*;
+import unsw.gloriaromanus.infrastructure.*;
 
 public class GloriaRomanusController{
 
@@ -69,6 +70,8 @@ public class GloriaRomanusController{
   private TextArea output_terminal;
   @FXML
   private TextArea province_info_terminal;
+  @FXML
+  private TextField turn_number;
 
   private ArcGISMap map;
 
@@ -134,6 +137,7 @@ public class GloriaRomanusController{
     printMessageToTerminal("Player1 : Rome");
     printMessageToTerminal("Player2: Gaul");
     printMessageToTerminal("It is player1's turn");
+    turn_number.setText(Integer.toString(turnCounter));
 
     initializeProvinceLayers();
   }
@@ -286,6 +290,7 @@ public class GloriaRomanusController{
     
     printMessageToTerminal("Loaded game from save!");
     printMessageToTerminal("It is currently player" + (turnCounter%2 + 1) + "'s turn.");
+    turn_number.setText(Integer.toString(turnCounter));
 
   }
 
@@ -319,7 +324,9 @@ public class GloriaRomanusController{
     }
     
     Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
-    printMessageToTerminal(province.addBuilding(buildingType));
+    printMessageToTerminal(province.addBuilding(buildingType, turnCounter));
+    resetSelections();
+    addAllPointGraphics();
   }
 
   /**
@@ -575,6 +582,14 @@ public class GloriaRomanusController{
     }
   }
 
+  /**
+   * Method to end the current turn and move onto the next turn
+   * This should also update all the provinces and check whether or not a building is built and update 
+   * accordingly. it should also check for if there are any troops that have finished training
+   * @throws JsonParseException
+   * @throws JsonMappingException
+   * @throws IOException
+   */
   private void endTurn() throws JsonParseException, JsonMappingException, IOException {
     if (provinceMap.checkWinner() != null) {
       Faction winningFaction = provinceMap.checkWinner();
@@ -587,11 +602,13 @@ public class GloriaRomanusController{
     }
     lockedProvinces.clear();
     turnCounter++;
+    provinceMap.updateMap();
     humanFaction = null;
     enemyFaction = null;
     printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
+    turn_number.setText(Integer.toString(turnCounter));
   }
 
   public void displaySelection(Feature selectedProvince) {
@@ -605,6 +622,22 @@ public class GloriaRomanusController{
     province_info_terminal.appendText("Units: \n");
     for (Unit unit: province.getUnits()) {
       province_info_terminal.appendText("\t" + unit.getType() + ": " + unit.getNumTroops() + " troops\n");
+    }
+    province_info_terminal.appendText("Buildings:\n");
+    for (Building building: province.getBuildings()) {
+      province_info_terminal.appendText("\t"+ building.getType() + ": ");
+      switch (building.getStatus()) {
+        case "Being built":
+          province_info_terminal.appendText(building.getStatus() + ", avaialble in turn " + 
+                                            building.getTurnAvailable() + "\n");
+          break;
+        case "Training":
+          province_info_terminal.appendText(building.getStatus() +" soldiers.\n");
+          break;
+        case "Idle" :
+          province_info_terminal.appendText(building.getStatus() + "\n");
+          break;
+      }
     }
   }
 }
