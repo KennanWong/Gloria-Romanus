@@ -366,5 +366,6 @@ public class Province {
         this.faction.removeGold(unit.getCost());
 
         String s = "You have successfully recruited" + unit.getNumTroops() + " " + unit.getCategory();
+        return s;
     }
 }
