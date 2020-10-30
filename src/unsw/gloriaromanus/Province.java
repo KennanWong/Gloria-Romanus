@@ -1,9 +1,6 @@
 package unsw.gloriaromanus;
 
-<<<<<<< HEAD
 import unsw.gloriaromanus.economy.*;
-=======
->>>>>>> infrastructure
 import unsw.gloriaromanus.infrastructure.*;
 
 import java.io.File;
@@ -36,10 +33,11 @@ public class Province {
     private int movementPointsReq;
     private boolean locked = false;
     private ArrayList<Building> allBuildings;
-    private ArrayList<TroopBuilding> troopBuildings;
+    private ArrayList<Building> troopBuildings;
     private ProvinceWealth provinceWealth; //total wealth of the province
+    private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
-    private String taxLevel;
+    private double taxRate; // a multiplier between 0 and 1
     //private ArrayList<WealthBuilding> wealthBuildings;
 
     // \/ temporary just to ensure implementation is correct
@@ -56,8 +54,10 @@ public class Province {
         
         this.roadLevel = "No roads";
         this.movementPointsReq = 4;
-        allBuildings = new ArrayList<>();
-        troopBuildings = new ArrayList<>();
+        this.allBuildings = new ArrayList<>();
+        this.troopBuildings = new ArrayList<>();
+
+
     }
 
     /**
@@ -291,13 +291,10 @@ public class Province {
 
     public void update() {
         //update the province accordingly per turn
-<<<<<<< HEAD
         //TODO
         //if taxrate was changed, implement accordingly
 
-=======
         //incomplete
->>>>>>> infrastructure
         for (Building building : this.allBuildings) {
             if (building.isBuilt()) {
                 continue;
@@ -305,19 +302,62 @@ public class Province {
                 building.update();
             }
         }
-<<<<<<< HEAD
+
+        //tax rates would have been controlled in controller
+        //the new tax rate would be shown first
+        //then when they end turn the effects will follow
 
         //Different tax rates have different effects
+        applyTaxRateEffects();
         
     }
 
-    public void recruitSoldier() {
-        //TODO
-=======
->>>>>>> infrastructure
+    private void applyTaxRateEffects() {
+        switch (this.taxLevel) {
+            case "Low":
+                this.growth = 10;
+                this.taxRate = 0.25;
+
+                Faction _faction = 
+                this.faction.setTreasury()
+                break;
+            case "Medium":
+                
+                break;
+            case "High":
+                
+                break;
+            case "Very High":
+                
+                break;
+        }
     }
 
+    public String recruitSoldier(Unit unit) {
+        //check if we have enough money
+        if (unit.getCost()*unit.getNumTroops() > getFaction().getTreasury()) {
+            String s = "Not enough gold!";
+            return s;
+        }
 
+        //check if we have the right building and building level to create this troop
+        boolean buildingAvailable = false;
+        ArrayList<Building> troopBuilding = (ArrayList<Building>) this.troopBuildings;
+        for (Building building : troopBuilding) {
+            if (building.getType() == unit.getCategory() && building.getLevel() == unit.getLevel()) {
+                buildingAvailable = true;
+            }
+        }
 
+        if (!buildingAvailable) {
+            String s = "You don't have the right building to train this troop!";
+            return s;
+        }
 
+        //add the troop and substract the money
+        this.units.add(unit);
+        this.faction.setTreasury(faction.getTreasury() - unit.getCost());
+
+        String s = "You have successfully recruited" + unit.getNumTroops() + " " + unit.getCategory();
+    }
 }

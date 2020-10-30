@@ -322,6 +322,7 @@ public class GloriaRomanusController{
     printMessageToTerminal(province.addBuilding(buildingType));
   }
 
+
   /**
    * run this initially to update province owner, change feature in each
    * FeatureLayer to be visible/invisible depending on owner. Can also update
@@ -582,6 +583,7 @@ public class GloriaRomanusController{
       gameFinished = true;
 
     }
+    //Update all the provinces
     for (Province province : lockedProvinces) {
       province.unlockProvince();
     }
@@ -592,6 +594,9 @@ public class GloriaRomanusController{
     printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
+
+    //TODO
+    //After we end turn, we need to check what the player has done
   }
 
   public void displaySelection(Feature selectedProvince) {
@@ -606,5 +611,11 @@ public class GloriaRomanusController{
     for (Unit unit: province.getUnits()) {
       province_info_terminal.appendText("\t" + unit.getType() + ": " + unit.getNumTroops() + " troops\n");
     }
+  }
+
+  //GIven our selected province, generate a unit object and see if we can add it
+  private void addSoldier(String soldier, int numTroops, Province province) {
+    Unit newUnit = new Unit(soldier, numTroops);
+    province.addUnit(newUnit);
   }
 }
