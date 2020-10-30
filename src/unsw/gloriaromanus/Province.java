@@ -34,7 +34,7 @@ public class Province {
     private boolean locked = false;
     private ArrayList<Building> allBuildings;
     private ArrayList<Building> troopBuildings;
-    private ProvinceWealth provinceWealth; //total wealth of the province
+    private int provinceWealth; //total wealth of the province
     private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
@@ -316,19 +316,26 @@ public class Province {
         switch (this.taxLevel) {
             case "Low":
                 this.growth = 10;
-                this.taxRate = 0.25;
-
-                Faction _faction = 
-                this.faction.setTreasury()
+                this.taxRate = 0.10;
+                this.faction.addGold(0.10*this.provinceWealth + 10);
                 break;
             case "Medium":
-                
+                this.growth = 0;
+                this.taxRate = 0.15;
+                this.faction.addGold(0.15*this.provinceWealth);
                 break;
             case "High":
-                
+                this.growth = -10;
+                this.taxRate = 0.20;
+                this.faction.addGold(0.20*this.provinceWealth - 10);
                 break;
             case "Very High":
-                
+                this.growth = -30;
+                this.taxRate = 0.25;
+                this.faction.addGold(0.25*this.provinceWealth - 30);
+                for (Unit unit : this.units) {
+                    unit.setMorale(unit.getMorale() - 1);
+                }
                 break;
         }
     }
@@ -356,7 +363,7 @@ public class Province {
 
         //add the troop and substract the money
         this.units.add(unit);
-        this.faction.setTreasury(faction.getTreasury() - unit.getCost());
+        this.faction.removeGold(unit.getCost());
 
         String s = "You have successfully recruited" + unit.getNumTroops() + " " + unit.getCategory();
     }
