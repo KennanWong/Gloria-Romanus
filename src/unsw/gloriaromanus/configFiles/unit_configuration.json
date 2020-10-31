@@ -9,7 +9,8 @@
         "attack": 4,
         "defenseSkill": 3,
         "shieldDefense": 3,
-        "cost": 20
+        "cost": 20,
+        "level": 1
     },
     "Horse Heavy Cavalry" : {
         "category" : "Cavalry",
@@ -21,7 +22,8 @@
         "attack": 10,
         "defenseSkill": 10,
         "shieldDefense": 10,
-        "cost": 30 
+        "cost": 30,
+        "level": 2
     },
     "Horse Lancer" : {
         "category" : "Cavalry",
@@ -33,7 +35,8 @@
         "attack": 8,
         "defenseSkill": 10,
         "shieldDefense": 5,
-        "cost": 30
+        "cost": 30,
+        "level": 3
     },
     "Camel Archer" : {
         "category" : "Artillery",
@@ -45,7 +48,8 @@
         "attack": 8,
         "defenseSkill": 8,
         "shieldDefense": 8,
-        "cost": 50
+        "cost": 50,
+        "level": 2
     },
     "Elephant Archer" : {
         "category" : "Artillery",
@@ -57,7 +61,8 @@
         "attack": 10,
         "defenseSkill": 10,
         "shieldDefense": 10,
-        "cost": 80
+        "cost": 80,
+        "level": 3
     },
     "Horse archer" : {
         "category" : "Artillery",
@@ -69,7 +74,8 @@
         "attack": 8,
         "defenseSkill": 5,
         "shieldDefense": 5,
-        "cost": 80
+        "cost": 80,
+        "level": 1
     },
     "Druid" : {
         "category" : "Infantry",
@@ -81,7 +87,8 @@
         "attack": 10,
         "defenseSkill": 2,
         "shieldDefense": 2,
-        "cost": 10
+        "cost": 10,
+        "level": 1
     },
     "Hoplite" : {
         "category" : "Infantry",
@@ -93,7 +100,8 @@
         "attack": 8,
         "defenseSkill": 10,
         "shieldDefense": 10,
-        "cost": 20
+        "cost": 20,
+        "level": 2
     },
     "Net Fighter" : {
         "category" : "Infantry",
@@ -105,7 +113,8 @@
         "attack": 4,
         "defenseSkill": 5,
         "shieldDefense": 5,
-        "cost": 10
+        "cost": 10,
+        "level": 1
     },
     "Pikemen" : {
         "category" : "Infantry",
@@ -117,7 +126,8 @@
         "attack": 6,
         "defenseSkill": 10,
         "shieldDefense": 6,
-        "cost": 10
+        "cost": 10,
+        "level": 1
     },
     "Swordsmen" : {
         "category" : "Infantry",
@@ -129,7 +139,8 @@
         "attack": 10,
         "defenseSkill": 10,
         "shieldDefense": 10,
-        "cost": 10
+        "cost": 10,
+        "level": 1
     },
     "Missile Infantry" : {
         "category" : "Artillery",
@@ -141,7 +152,8 @@
         "attack": 15,
         "defenseSkill": 3,
         "shieldDefense": 3,
-        "cost": 20
+        "cost": 20,
+        "level": 1
     },
     "Spearmen" : {
         "category" : "Artillery",
@@ -153,7 +165,8 @@
         "attack": 10,
         "defenseSkill": 5,
         "shieldDefense": 5,
-        "cost": 15
+        "cost": 15,
+        "level": 2
     },
     "Archermen" : {
         "category" : "Artillery",
@@ -165,7 +178,8 @@
         "attack": 8,
         "defenseSkill": 5,
         "shieldDefense": 5,
-        "cost": 15
+        "cost": 15,
+        "level": 1
     },
     "Cannon" : {
         "category" : "Artillery",
@@ -177,7 +191,8 @@
         "attack": 17,
         "defenseSkill": 3,
         "shieldDefense": 3,
-        "cost": 30
+        "cost": 30,
+        "level": 3
     },
     "Crossbowman" : {
         "category" : "Artillery",
@@ -189,7 +204,8 @@
         "attack": 8,
         "defenseSkill": 5,
         "shieldDefense": 5,
-        "cost": 20
+        "cost": 20,
+        "level": 1
     },
     "Trebuchet" : {
         "category" : "Artillery",
@@ -201,7 +217,8 @@
         "attack": 20,
         "defenseSkill": 2,
         "shieldDefense": 2,
-        "cost": 50
+        "cost": 50,
+        "level": 2
     }
     
 }

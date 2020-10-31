@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 /**
  * Represents a basic unit of soldiers
  * 
@@ -82,8 +81,8 @@ public class Unit {
         defenseSkill = unitStat.getInt("defenseSkill");
         shieldDefense = unitStat.getInt("shieldDefense");
         turnsToTrain = 1;
-        // cost = unitStat.getInt("cost");
-        // level = unitStat.getInt("level");
+        cost = unitStat.getInt("cost");
+        level = unitStat.getInt("level");
     }
 
     public int getNumTroops(){
@@ -157,14 +156,14 @@ public class Unit {
         unitJSON.put("defenseSkill", defenseSkill);
         unitJSON.put("shieldDefense", shieldDefense);
         unitJSON.put("movementPoints", movementPoints);
-        // unitJSON.put("cost", cost);
-        // unitJSON.put("level", level);
+        unitJSON.put("cost", cost);
+        unitJSON.put("level", level);
         return unitJSON;
 
     }
 
     public void setUnitFromJSON(JSONObject json) {
-        // category = json.getString("category");
+        category = json.getString("category");
         range = json.getInt("range");
         armour = json.getInt("armour");
         morale = json.getInt("morale");
@@ -174,7 +173,7 @@ public class Unit {
         defenseSkill = json.getInt("defenseSkill");
         shieldDefense = json.getInt("shieldDefense");
         movementPoints = json.getInt("movementPoints");
-        // cost = json.getInt("cost");
-        // level = json.getInt("level");
+        cost = json.getInt("cost");
+        level = json.getInt("level");
     }
 }
