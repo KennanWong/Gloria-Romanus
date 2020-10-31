@@ -25,6 +25,7 @@ public class Faction {
     private String name;
     private Map<String, Province> provinces;
     private int treasury;
+    private int user;
 
     public Faction (String name) {
         this.name = name;
@@ -75,5 +76,13 @@ public class Faction {
 
     public void removeGold(double gold) {
         this.treasury -= Math.round(gold);
+    }
+
+    public void setUser(int user) {
+        this.user = user;
+    }
+
+    public int getUser() {
+        return user;
     }
 }
