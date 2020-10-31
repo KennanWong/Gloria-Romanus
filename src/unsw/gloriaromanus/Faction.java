@@ -26,11 +26,17 @@ public class Faction {
     private String name;
     private Map<String, Province> provinces;
     private int treasury;
+    private int numMaxLevelMines;
+    private double buildingCostReductionMultiplier;
+    private double soldierCostReductionMultiplier;
 
     public Faction (String name) {
         this.name = name;
         this.provinces = new HashMap<String, Province>();
         this.treasury = 500;
+        this.buildingCostReductionMultiplier = 1;
+        this.soldierCostReductionMultiplier = 1;
+        this.numMaxLevelMines = 0;
     }
 
     
@@ -87,6 +93,30 @@ public class Faction {
      */
     public void setTreasury(int gold) {
         this.treasury = gold;
+    }
+
+    public int getNumMaxLevelMines() {
+        return numMaxLevelMines;
+    }
+
+    public void setNumMaxLevelMines(int numMaxLevelMines) {
+        this.numMaxLevelMines = numMaxLevelMines;
+    }
+
+    public double getBuildingCostReductionMultiplier() {
+        return buildingCostReductionMultiplier;
+    }
+
+    public void setBuildingCostReductionMultiplier(double buildingCostReductionMultiplier) {
+        this.buildingCostReductionMultiplier = buildingCostReductionMultiplier;
+    }
+
+    public double getSoldierCostReductionMultiplier() {
+        return soldierCostReductionMultiplier;
+    }
+
+    public void setSoldierCostReductionMultiplier(double soldierCostReductionMultiplier) {
+        this.soldierCostReductionMultiplier = soldierCostReductionMultiplier;
     }
 }
 

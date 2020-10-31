@@ -246,11 +246,15 @@ public class Province {
             return s;
         }
 
-        // TODO
+        //check if we already have that same type of building here
+        if (buildingPresent(building)) {
+            String s = "You already have this type of building!";
+            return s;
+        }
+
         // check if any of our buildings will have a reduced cost time or build time
-        // cost is a multiplier and buildtime is a constant turn reduction
-        double costReduction = 1;
-        int buildTimeReduction = 0;
+        double costReduction = faction.getBuildingCostReductionMultiplier();
+        int buildTimeReduction = faction.getNumMaxLevelMines();
 
         //create the building and add it to our lists of buildings
         switch (building) {
@@ -269,23 +273,13 @@ public class Province {
                 this.buildings.add(a);
                 this.troopBuildings.add(a);
                 return "Construction began sucessfully!";
-            /*
+            
             case "Mine":
-                
-                break;
-            case "Farm":
-                
-                break;
-            case "Port":
                 
                 break;
             case "Market":
                 
-                break;
-            case "Wall":
-
-                break;
-            */
+                break;    
         }
 
         String s = "Could not build building of type " + building + "!";
@@ -299,6 +293,16 @@ public class Province {
             }
         }
         return false;
+    }
+
+    private boolean buildingPresent(String building) {
+        boolean flag = false;
+        for (Building b : getBuildings()) {
+            if (b.getType().equals(building)) {
+                flag = true;
+            }
+        }
+        return flag;
     }
 
     /**
