@@ -39,6 +39,7 @@ public abstract class Building {
     private Province province; // the province the building is from
     private Unit unitBeingTrained; // the unit being trained in this building
     private JSONArray buildingConfig;
+    private double bonus;
 
     // gets called after every turn, and the building lowers it's build time
     public void update() {
@@ -79,7 +80,7 @@ public abstract class Building {
         if (level < 4) {
             level++;
             built = false;
-            buildTime = Integer.parseInt(buildingConfig.getJSONObject(level).getJSONObject("buildTime"));
+            buildTime = buildingConfig.getJSONObject(level).getInt("buildTime");
         }
         
         
@@ -126,7 +127,7 @@ public abstract class Building {
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
         JSONArray buildingConfig = buildingType.getJSONArray("level");
         JSONObject buildStats = buildingConfig.getJSONObject(0);
-        int cost = Integer.parseInt(buildStats.getString("cost"));
+        int cost = buildStats.getInt("cost");
         this.cost = (int) Math.round(cost*costMultiplier);
         int buildTime = buildStats.getInt("buildTime");
         this.type = type;
@@ -181,4 +182,13 @@ public abstract class Building {
         cost = json.getInt("cost");
 
     }
+
+    public double getBonus() {
+        return bonus;
+    }
+
+    public void setBonus(double bonus) {
+        this.bonus = bonus;
+    }
+
 }
