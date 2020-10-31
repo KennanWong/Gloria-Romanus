@@ -19,16 +19,19 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.Math;
-
+/**
+ * @invar treasury > 0
+ */
 public class Faction {
     private String name;
     private Map<String, Province> provinces;
+    private ArrayList<Province> provinceObjects;
     private int treasury;
 
     public Faction (String name) {
         this.name = name;
         this.provinces = new HashMap<String, Province>();
+        this.provinceObjects = new ArrayList<Province>();
         this.treasury = 500;
     }
 
@@ -38,11 +41,13 @@ public class Faction {
 
     public void addProvince(Province province) {
         provinces.put(province.getName(), province);
+        provinceObjects.add(province);
         province.setFaction(this);
     }
 
     public void removeProvince(Province province) {
         provinces.remove(province.getName());
+        provinceObjects.remove(province);
         province.setFaction(null);
     }
 
@@ -57,6 +62,10 @@ public class Faction {
         return provinces;
     }
 
+    public ArrayList<Province> getProvinceObjects() {
+        return provinceObjects;
+    }
+
     public Province getProvince(String name) {
         return provinces.get(name);
     }
@@ -65,15 +74,11 @@ public class Faction {
         return treasury;
     }
 
+    /** 
+     * @pre value rounded with Math.round() && greater than 0
+     */
     public void setTreasury(int gold) {
         this.treasury = gold;
     }
-
-    public void addGold(double gold) {
-        this.treasury += Math.round(gold);
-    }
-
-    public void removeGold(double gold) {
-        this.treasury -= Math.round(gold);
-    }
 }
+

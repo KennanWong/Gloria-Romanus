@@ -81,6 +81,8 @@ public class GloriaRomanusController{
 
   // private String humanFaction;
 
+  private ArrayList<Faction> factions;
+
 
   private Faction user1;
   private Faction user2;
@@ -592,6 +594,10 @@ public class GloriaRomanusController{
     for (Province province : lockedProvinces) {
       province.unlockProvince();
     }
+
+    growProvinceWealth();
+    collectTaxes();
+
     lockedProvinces.clear();
     setTurnCounter(turnCounter++);
     humanFaction = null;
@@ -601,6 +607,35 @@ public class GloriaRomanusController{
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
     turn_number.setText(Integer.toString(turnCounter));
+  }
+
+  private void growProvinceWealth() {
+    for (Faction faction : factions) {
+      for (Province province : faction.getProvinceObjects()) {
+        int newProvinceWealth = province.getGrowth() + province.getWealth();
+        if (newProvinceWealth < 0) {
+          province.setWealth(0);
+        } else {
+          province.setWealth(newProvinceWealth);
+        }
+      }
+    }
+  }
+
+  private void collectTaxes() {
+    for (Faction faction : factions) {
+      for (Province province : faction.getProvinceObjects()) {
+        int tax = (int) Math.round(province.getTaxRate()*province.getWealth());
+        int newProvinceWealth = province.getWealth() - tax;
+        if (newProvinceWealth < 0) {
+          province.setWealth(0);
+          faction.setTreasury(province.getWealth());
+        } else {
+          province.setWealth(newProvinceWealth);
+          faction.setTreasury(faction.getTreasury() + tax);
+        }
+      }
+    }
   }
 
   public void displaySelection(Feature selectedProvince) {
@@ -633,19 +668,13 @@ public class GloriaRomanusController{
     }
   }
 
-  //GIven our selected province, generate a unit object and see if we can add it
-  private void addSoldier(String soldier, int numTroops, Province province) throws IOException {
-    Unit newUnit = new Unit(soldier, numTroops);
-    province.addUnit(newUnit);
-  }
-
   private void setFactions() {
     if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
+      this.humanFaction = user1;
+      this.enemyFaction = user2;
     } else {
-      humanFaction = user2;
-      enemyFaction = user1;
+      this.humanFaction = user2;
+      this.enemyFaction = user1;
     }
   }
 
