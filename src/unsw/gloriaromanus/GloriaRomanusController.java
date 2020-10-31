@@ -81,7 +81,7 @@ public class GloriaRomanusController{
 
   // private String humanFaction;
 
-  private ArrayList<Faction> factions;
+  //private ArrayList<Faction> factions;
 
 
   private Faction user1;
@@ -136,6 +136,7 @@ public class GloriaRomanusController{
     // set the user factions
     user1 = provinceMap.getFaction("Rome");
     user2 = provinceMap.getFaction("Gaul");
+
 
     printMessageToTerminal("Player1 : Rome");
     printMessageToTerminal("Player2: Gaul");
@@ -590,53 +591,30 @@ public class GloriaRomanusController{
       gameFinished = true;
 
     }
+    printMessageToTerminal("1");
     //Update all the provinces
     for (Province province : lockedProvinces) {
       province.unlockProvince();
     }
 
-    growProvinceWealth();
-    collectTaxes();
-
+    user1.collectTaxes();
+    user2.collectTaxes();
     lockedProvinces.clear();
-    setTurnCounter(turnCounter++);
+    turnCounter++;
+    provinceMap.update();
+    printMessageToTerminal("6");
     humanFaction = null;
     enemyFaction = null;
-    printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
+    printMessageToTerminal("7");
+    printMessageToTerminal("The year is " + turnCounter + " - now it is player" + (turnCounter%2 + 1) + "'s turn");
     setFactions();
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
     turn_number.setText(Integer.toString(turnCounter));
   }
 
-  private void growProvinceWealth() {
-    for (Faction faction : factions) {
-      for (Province province : faction.getProvinceObjects()) {
-        int newProvinceWealth = province.getGrowth() + province.getWealth();
-        if (newProvinceWealth < 0) {
-          province.setWealth(0);
-        } else {
-          province.setWealth(newProvinceWealth);
-        }
-      }
-    }
-  }
+  
 
-  private void collectTaxes() {
-    for (Faction faction : factions) {
-      for (Province province : faction.getProvinceObjects()) {
-        int tax = (int) Math.round(province.getTaxRate()*province.getWealth());
-        int newProvinceWealth = province.getWealth() - tax;
-        if (newProvinceWealth < 0) {
-          province.setWealth(0);
-          faction.setTreasury(province.getWealth());
-        } else {
-          province.setWealth(newProvinceWealth);
-          faction.setTreasury(faction.getTreasury() + tax);
-        }
-      }
-    }
-  }
 
   public void displaySelection(Feature selectedProvince) {
     if (selectedProvince == null) {
@@ -678,8 +656,4 @@ public class GloriaRomanusController{
     }
   }
 
-  public void setTurnCounter(int turnCounter) {
-    this.turnCounter = turnCounter;
-    provinceMap.update();
-  }
 }

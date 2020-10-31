@@ -299,23 +299,16 @@ public class Province {
     }
 
     /**
-     * Method to update a province by applying the changes made to the province update buildings and troop
-     * number accordingly
-     * @param turnNumber
+     * Method to update a province by applying the changes made to the province update building times, troop training and wealth generation
      */
     public void update() {
-        // check for updates to buildings
         for (Building building : this.buildings) {
             building.update();
         }
-
-        //tax rates would have been controlled in controller
-        //the new tax rate would be shown first
-        //then when they end turn the effects will follow
-
-        //Different tax rates have different effects
-        applyTax();
-        
+        for (Unit unit : units) {
+            unit.update();
+        }
+        growWealth();       
     }
 
     public List<Building> getBuildings() {
@@ -324,28 +317,23 @@ public class Province {
 
 
     
-    public void applyTax() {
+    public void setTax() {
         switch (taxLevel) {
             case "Low":
                 growth = 10;
                 taxRate = 0.10;
-                int gold = Math.round(faction.getTreasury() + 0.10*provinceWealth + 10);
-                this.faction.setTreasury(gold);
                 break;
             case "Medium":
                 this.growth = 0;
                 this.taxRate = 0.15;
-                this.faction.setTreasury(0.15*this.provinceWealth);
                 break;
             case "High":
                 this.growth = -10;
                 this.taxRate = 0.20;
-                this.faction.setTreasury(0.20*this.provinceWealth - 10);
                 break;
             case "Very High":
                 this.growth = -30;
                 this.taxRate = 0.25;
-                this.faction.setTreasury(0.25*this.provinceWealth - 30);
                 for (Unit unit : this.units) {
                     unit.setMorale(unit.getMorale() - 1);
                 }
@@ -396,6 +384,15 @@ public class Province {
         String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
                     + "\n Will begin training.";
         return s;
+    }
+
+    private void growWealth() {
+        int newProvinceWealth = getGrowth() + getWealth();
+        if (newProvinceWealth < 0) {
+            setWealth(0);
+        } else {
+            setWealth(newProvinceWealth);
+        }
     }
 
     public int getWealth() {

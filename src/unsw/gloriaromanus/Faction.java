@@ -25,15 +25,29 @@ import org.json.JSONObject;
 public class Faction {
     private String name;
     private Map<String, Province> provinces;
-    private ArrayList<Province> provinceObjects;
     private int treasury;
 
     public Faction (String name) {
         this.name = name;
         this.provinces = new HashMap<String, Province>();
-        this.provinceObjects = new ArrayList<Province>();
         this.treasury = 500;
     }
+
+    
+    public void collectTaxes() {
+        for (Province province : provinces.values()) {
+            int tax = (int) Math.round(province.getTaxRate()*province.getWealth());
+            int newProvinceWealth = province.getWealth() - tax;
+            if (newProvinceWealth < 0) {
+                province.setWealth(0);
+                setTreasury(province.getWealth());
+            } else {
+                province.setWealth(newProvinceWealth);
+                setTreasury(getTreasury() + tax);
+            }
+        }
+    }
+    
 
     public String getName() {
         return name;
@@ -41,13 +55,11 @@ public class Faction {
 
     public void addProvince(Province province) {
         provinces.put(province.getName(), province);
-        provinceObjects.add(province);
         province.setFaction(this);
     }
 
     public void removeProvince(Province province) {
         provinces.remove(province.getName());
-        provinceObjects.remove(province);
         province.setFaction(null);
     }
 
@@ -60,10 +72,6 @@ public class Faction {
     }
     public Map<String, Province> getProvinces() {
         return provinces;
-    }
-
-    public ArrayList<Province> getProvinceObjects() {
-        return provinceObjects;
     }
 
     public Province getProvince(String name) {
