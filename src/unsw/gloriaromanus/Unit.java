@@ -137,6 +137,12 @@ public class Unit {
         return level;
     }
 
+    public void update() {
+        if (getTurnsToTrain() != 0) {
+            turnsToTrain--;
+        }
+    }
+
     public JSONObject getUnitAsJson() {
         JSONObject unitJSON = new JSONObject();
         unitJSON.put("type", type);
