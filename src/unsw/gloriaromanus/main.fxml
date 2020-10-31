@@ -48,6 +48,7 @@
         <Button text="Save Game" onAction="#clickedSaveButton"/>
         <Button text="Load Game" onAction="#clickedLoadButton"/>
         <Button text="Reset View" onAction="#clickedResetButton"/>
+        <Button text="Set factions" onAction="#setFactions"/>
         <VBox>
             <Label text="Output from interactions"/>
             <TextArea fx:id="output_terminal" text="" editable="false"/>

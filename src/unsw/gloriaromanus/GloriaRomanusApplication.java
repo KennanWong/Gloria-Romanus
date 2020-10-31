@@ -36,15 +36,19 @@ public class GloriaRomanusApplication extends Application {
     Button startGame = new Button("Start Game");
     startGame.setOnAction(e-> window.setScene(game));
     
+    FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("menu.fxml"));
+    Parent menuRoot = menuLoader.load();
+    Scene menu = new Scene(menuRoot);
+    stage.setScene(menu);
 
-    
-
+    /*
     StackPane mainMenuLayout = new StackPane();
     mainMenuLayout.getChildren().add(startGame);
     Scene mainMenu  = new Scene(mainMenuLayout, 800, 700);
     
 
     stage.setScene(mainMenu);
+    */
     stage.show();
 
   }
