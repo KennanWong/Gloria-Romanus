@@ -7,24 +7,44 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 
 public class GloriaRomanusApplication extends Application {
+
+  private Stage window;
 
   private static GloriaRomanusController controller;
 
   @Override
   public void start(Stage stage) throws IOException {
-    // set up the scene
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
-    Parent root = loader.load();
-    controller = loader.getController();
-    Scene scene = new Scene(root);
-
     // set up the stage
     stage.setTitle("Gloria Romanus");
     stage.setWidth(800);
     stage.setHeight(700);
-    stage.setScene(scene);
+
+    // Set up main menu
+    window = stage;
+
+    // set up the scene
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+    Parent root = loader.load();
+    controller = loader.getController();
+    Scene game = new Scene(root);
+
+    // Label mainMenuMsg = new Label ("Welcome to Gloria Romanus!");
+    Button startGame = new Button("Start Game");
+    startGame.setOnAction(e-> window.setScene(game));
+    
+
+    
+
+    StackPane mainMenuLayout = new StackPane();
+    mainMenuLayout.getChildren().add(startGame);
+    Scene mainMenu  = new Scene(mainMenuLayout, 800, 700);
+    
+
+    stage.setScene(mainMenu);
     stage.show();
 
   }
