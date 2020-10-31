@@ -35,12 +35,10 @@ public class Province {
     private int movementPointsReq;
     private boolean locked = false;
     private ArrayList<Building> buildings;
-    private ArrayList<Building> troopBuildings;
     private int wealth; //total wealth of the province
     private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
-    //private ArrayList<WealthBuilding> wealthBuildings;
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
@@ -56,7 +54,6 @@ public class Province {
         this.roadLevel = "No roads";
         this.movementPointsReq = 4;
         buildings = new ArrayList<>();
-        troopBuildings = new ArrayList<>();
         taxLevel = "Low";
         taxRate = 0.1;
         growth = 10;
@@ -260,26 +257,25 @@ public class Province {
         switch (building) {
             case "Infantry":
                 Infantry i = new Infantry(costReduction, buildTimeReduction, this);
-                this.buildings.add(i);
-                this.troopBuildings.add(i);
+                buildings.add(i);
                 return "Construction began sucessfully!";
             case "Cavalry":
                 Cavalry c = new Cavalry(costReduction, buildTimeReduction, this);
-                this.buildings.add(c);
-                this.troopBuildings.add(c);
+                buildings.add(c);
                 return "Construction began sucessfully!";
             case "Artillery":
                 Artillery a = new Artillery(costReduction, buildTimeReduction, this);
-                this.buildings.add(a);
-                this.troopBuildings.add(a);
+                buildings.add(a);
                 return "Construction began sucessfully!";
             
             case "Mine":
-                
+                Mine m = new Mine(costReduction, buildTimeReduction, this);
+                buildings.add(m);
                 break;
             case "Market":
-                
-                break;    
+                Market ma = new Market(costReduction, buildTimeReduction, this);
+                buildings.add(ma);
+                break;
         }
 
         String s = "Could not build building of type " + building + "!";
@@ -359,8 +355,7 @@ public class Province {
         
         //check if we have the right building and building level to create this troop
         Building buildingAvailable = null;
-        ArrayList<Building> troopBuilding = (ArrayList<Building>) this.troopBuildings;
-        for (Building building : troopBuilding) {
+        for (Building building : buildings) {
             /*
             if (building.getType() == unit.getCategory() && building.getLevel() == unit.getLevel()) {
                 buildingAvailable = true;
