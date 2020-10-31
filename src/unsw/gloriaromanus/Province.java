@@ -22,6 +22,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.Math;
+
+
 
 
 public class Province {
@@ -33,7 +36,7 @@ public class Province {
     private boolean locked = false;
     private ArrayList<Building> buildings;
     private ArrayList<Building> troopBuildings;
-    private int provinceWealth; //total wealth of the province
+    private int wealth; //total wealth of the province
     private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
@@ -118,6 +121,8 @@ public class Province {
     public void lockDownProvince() {
         locked = true;
     }
+
+    
 
     public void unlockProvince() {
         locked = false;
@@ -294,7 +299,7 @@ public class Province {
     }
 
     /**
-     * Method to update a province, it should take in a turn number and update buildings and troop
+     * Method to update a province by applying the changes made to the province update buildings and troop
      * number accordingly
      * @param turnNumber
      */
@@ -309,7 +314,7 @@ public class Province {
         //then when they end turn the effects will follow
 
         //Different tax rates have different effects
-        // applyTaxRateEffects();
+        applyTax();
         
     }
 
@@ -317,27 +322,30 @@ public class Province {
         return buildings;
     }
 
-    private void applyTaxRateEffects() {
-        switch (this.taxLevel) {
+
+    
+    public void applyTax() {
+        switch (taxLevel) {
             case "Low":
-                this.growth = 10;
-                this.taxRate = 0.10;
-                this.faction.addGold(0.10*this.provinceWealth + 10);
+                growth = 10;
+                taxRate = 0.10;
+                int gold = Math.round(faction.getTreasury() + 0.10*provinceWealth + 10);
+                this.faction.setTreasury(gold);
                 break;
             case "Medium":
                 this.growth = 0;
                 this.taxRate = 0.15;
-                this.faction.addGold(0.15*this.provinceWealth);
+                this.faction.setTreasury(0.15*this.provinceWealth);
                 break;
             case "High":
                 this.growth = -10;
                 this.taxRate = 0.20;
-                this.faction.addGold(0.20*this.provinceWealth - 10);
+                this.faction.setTreasury(0.20*this.provinceWealth - 10);
                 break;
             case "Very High":
                 this.growth = -30;
                 this.taxRate = 0.25;
-                this.faction.addGold(0.25*this.provinceWealth - 30);
+                this.faction.setTreasury(0.25*this.provinceWealth - 30);
                 for (Unit unit : this.units) {
                     unit.setMorale(unit.getMorale() - 1);
                 }
@@ -388,5 +396,32 @@ public class Province {
         String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
                     + "\n Will begin training.";
         return s;
+    }
+
+    public int getWealth() {
+        return wealth;
+    }
+
+    /** 
+     * @pre value rounded with Math.round() && greater than 0
+     */
+    public void setWealth(int wealth) {
+        this.wealth = wealth;
+    }
+
+    public int getGrowth() {
+        return growth;
+    }
+
+    public void setGrowth(int growth) {
+        this.growth = growth;
+    }
+
+    public double getTaxRate() {
+        return taxRate;
+    }
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate = taxRate;
     }
 }
