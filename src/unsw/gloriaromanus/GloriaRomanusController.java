@@ -86,7 +86,6 @@ public class GloriaRomanusController{
   private Faction user2;
 
   private Faction humanFaction;
-
   private Faction enemyFaction;
 
   // provinceMap object
@@ -140,7 +139,7 @@ public class GloriaRomanusController{
     printMessageToTerminal("Player2: Gaul");
     printMessageToTerminal("It is player1's turn");
     turn_number.setText(Integer.toString(turnCounter));
-
+    setFactions();
     initializeProvinceLayers();
   }
 
@@ -149,14 +148,6 @@ public class GloriaRomanusController{
     if (gameFinished) {
       return;
     }
-    if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
-    } else {
-      humanFaction = user2;
-      enemyFaction = user1;
-    }
-
     if (currentlySelectedProvince1 != null && currentlySelectedProvince2 != null){
       Province humanProvince = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
       Province enemyProvince = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
@@ -166,52 +157,16 @@ public class GloriaRomanusController{
         addAllPointGraphics(); // reset graphics
         return;
       }
-
-      if (humanProvince.isLocked()) {
-        printMessageToTerminal("Cannot use units from a province invaded in the current turn");
-        resetSelections();  // reset selections in UI
-        addAllPointGraphics(); // reset graphics
-        return;
-      }
-      
-      if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())){
-        List <Unit> humanUnits = humanProvince.getUnits();
-        List <Unit> enemyUnits = enemyProvince.getUnits();
-      
-        // army strength calculated as the sum of number of soldiers in unit x attack x defense for all units in the army.
-
-        double humanStrength = 0;
-        for (Unit unit: humanUnits) {
-          humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
-        }
-
-        if (humanStrength == 0) {
-          printMessageToTerminal("No soldiers to go into battle with!");
-          resetSelections();  // reset selections in UI
-          addAllPointGraphics(); // reset graphics
-          return;
-        } else {
-          Invade newInvade = new Invade("invade", humanFaction, enemyFaction, humanProvince, enemyProvince);
-          int result = newInvade.execute();
-          // if we won a battle, lock the province down
-          if (result == 1) {
-            printMessageToTerminal("Won battle!");
-            enemyProvince.lockDownProvince();
-            lockedProvinces.add(enemyProvince);
-          } else if (result == -1) {
-            printMessageToTerminal("Losst battle!");
-          } else {
-            printMessageToTerminal("Battle draw!");
-          }
-          resetSelections();  // reset selections in UI
-          addAllPointGraphics(); // reset graphics
-          return;
-        }
+      if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())) {
+        Command newCommand = new Command();
+        newCommand.setStrategy(new Invade());
+        printMessageToTerminal(newCommand.executeStrategy(humanProvince, enemyProvince));
       } else {
         printMessageToTerminal("Provinces not adjacent, cannot invade!");
-        resetSelections();
-        return;
       }
+      resetSelections();
+      addAllPointGraphics();
+      
     }
   }
 
@@ -219,13 +174,6 @@ public class GloriaRomanusController{
   public void clickedMoveButton(ActionEvent e) throws IOException {
     if (gameFinished) {
       return;
-    }
-    if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
-    } else {
-      humanFaction = user2;
-      enemyFaction = user1;
     }
     if (currentlySelectedProvince1 == null || currentlySelectedProvince2 == null) {
       printMessageToTerminal("Please select two provinces");
@@ -245,7 +193,7 @@ public class GloriaRomanusController{
       addAllPointGraphics(); // reset graphics
       return;
     }
-    
+
     if (moveFrom.isLocked()) {
       printMessageToTerminal("Cannot move units from a province invaded in current turn");
       resetSelections();  // reset selections in UI
@@ -269,8 +217,9 @@ public class GloriaRomanusController{
     }
 
     // Checked requirements, good to make move, add move to command queue
-    Move newMove = new Move("move", humanFaction, moveFrom, moveTo);
-    newMove.execute();
+    Command newCommand = new Command();
+    newCommand.setStrategy(new Move());
+    printMessageToTerminal(newCommand.executeStrategy(moveFrom, moveTo));
     addAllPointGraphics(); 
     resetSelections();
   }
@@ -286,6 +235,7 @@ public class GloriaRomanusController{
   public void clickedLoadButton(ActionEvent e) throws IOException {
     
     turnCounter = provinceMap.loadGame();
+    setFactions();
     user1 = provinceMap.getFaction(user1.getName());
     user2 = provinceMap.getFaction(user2.getName());
     addAllPointGraphics(); // reset graphics
@@ -317,14 +267,7 @@ public class GloriaRomanusController{
       return;
     }
     String buildingType = building_type.getText();
-    if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
-    } else {
-      humanFaction = user2;
-      enemyFaction = user1;
-    }
-    
+    setFactions();
     Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
     if (province.getFaction() == humanFaction) {
       printMessageToTerminal(province.addBuilding(buildingType));
@@ -650,11 +593,11 @@ public class GloriaRomanusController{
       province.unlockProvince();
     }
     lockedProvinces.clear();
-    turnCounter++;
-    provinceMap.updateMap();
+    setTurnCounter(turnCounter++);
     humanFaction = null;
     enemyFaction = null;
     printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
+    setFactions();
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
     turn_number.setText(Integer.toString(turnCounter));
@@ -694,5 +637,20 @@ public class GloriaRomanusController{
   private void addSoldier(String soldier, int numTroops, Province province) throws IOException {
     Unit newUnit = new Unit(soldier, numTroops);
     province.addUnit(newUnit);
+  }
+
+  private void setFactions() {
+    if (turnCounter%2 == 0) {
+      humanFaction = user1;
+      enemyFaction = user2;
+    } else {
+      humanFaction = user2;
+      enemyFaction = user1;
+    }
+  }
+
+  public void setTurnCounter(int turnCounter) {
+    this.turnCounter = turnCounter;
+    provinceMap.update();
   }
 }

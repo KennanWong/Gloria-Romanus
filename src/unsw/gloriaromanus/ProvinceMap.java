@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ProvinceMap {
+public class ProvinceMap extends Observer {
     private Map<String, Province> provinces;
     private Map<String, Faction> factions;
     private JSONObject provinceAdjacencyMatrix;
@@ -36,20 +36,15 @@ public class ProvinceMap {
         // key will be the faction name
             Faction faction = new Faction(key);
             this.factions.put(faction.getName(), faction);
-            if (mode == "new") {
-                JSONArray ja = map.getJSONArray(key);
-                // value is province name
-                for (int i = 0; i < ja.length(); i++) {
-                    String provinceName = ja.getString(i);
-                    Province province = new Province(provinceName, faction);
-                    faction.addProvince(province);
-                    provinces.put(provinceName, province);
-                    numCities += 1;
-                }
-            } else if (mode == "save") {
-                
+            JSONArray ja = map.getJSONArray(key);
+            // value is province name
+            for (int i = 0; i < ja.length(); i++) {
+                String provinceName = ja.getString(i);
+                Province province = new Province(provinceName, faction);
+                faction.addProvince(province);
+                provinces.put(provinceName, province);
+                numCities += 1;
             }
-            
         }
         this.provinceAdjacencyMatrix = provinceAdjacencyMatrix;
     }
@@ -193,11 +188,11 @@ public class ProvinceMap {
                 return null;
             }
         }
-
         return tmp;
     }
 
-    public void updateMap() {
+    @Override
+    public void update() {
         for (Province province : provinces.values()) {
             province.update();
         }

@@ -45,10 +45,9 @@ public class Province {
     public Province(String name, Faction faction) throws IOException {
         this.name = name;
         this.faction = faction;
-        Random r = new Random();
         this.units = new ArrayList<>();
         
-        Unit firstUnit = new Unit("Swordsmen", r.nextInt(500));
+        Unit firstUnit = new Unit("Swordsmen",50);
         units.add(firstUnit);
         
         this.roadLevel = "No roads";

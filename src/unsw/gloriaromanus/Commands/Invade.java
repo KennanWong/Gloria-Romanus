@@ -5,42 +5,29 @@ import java.util.Random;
 
 import unsw.gloriaromanus.*;
 
-public class Invade extends Command{
-    private Faction enemyFaction;
-    private Province humanProvince;
-    private Province enemyProvince;
+public class Invade implements Strategy {
 
-    public Invade (String command, Faction humanFaction, Faction enemyFaction, Province humanProvince, Province enemyProvince) {
-        super(command, humanFaction);
-        this.humanProvince = humanProvince;
-        this.enemyProvince = enemyProvince;
-        this.enemyFaction = enemyFaction;
-    }
-    public Faction getEnemyFaction() {
-        return enemyFaction;
-    }
-    public Province getHumanProvince() {
-        return humanProvince;
-    }
-    public Province getEnemyProvince() {
-        return enemyProvince;
-    }
+    @Override
+    public String execute(Province province1, Province province2) {
+        Province humanProvince = province1;
+        Faction humanFaction = humanProvince.getFaction();
+        Province enemyProvince = province2;
 
-    // excecute the invade command, will return 1 if we have one, -1 if we lost and 0 if draw
-    public int execute()   {
-        Faction humanFaction = super.getFaction();
+
+        if (humanProvince.isLocked()) {
+            return "Cannot use units from a province invaded in the current turn";
+        }
         List <Unit> humanUnits = humanProvince.getUnits();
         List <Unit> enemyUnits = enemyProvince.getUnits();
-    
+          
         // army strength calculated as the sum of number of soldiers in unit x attack x defense for all units in the army.
-
         double humanStrength = 0;
         for (Unit unit: humanUnits) {
             humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
         }
 
         if (humanStrength == 0) {
-            return -1;
+            return "Lost battle!";
         }
 
         double enemyStrength = 0;
@@ -52,7 +39,7 @@ public class Invade extends Command{
             // invade by default
             enemyProvince.changeProvinceOwnership(humanFaction);
             humanProvince.moveUnits(enemyProvince);
-            return 1;
+            return "Won battle!";
         }
 
         boolean finished = false;
@@ -107,13 +94,14 @@ public class Invade extends Command{
                 // human won
                 enemyProvince.changeProvinceOwnership(humanFaction);
                 humanProvince.moveUnits(enemyProvince);
-                return 1;
+                enemyProvince.lockDownProvince();
+                return "Won battle!";
             } 
             if (humanStrength == 0) {
                 // enemy won
                 humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
                 enemyProvince.moveUnits(humanProvince);
-                return -1;
+                return "Lost battle!";
                 
             }
 
@@ -144,22 +132,25 @@ public class Invade extends Command{
                 // human won
                 enemyProvince.changeProvinceOwnership(humanFaction);
                 humanProvince.moveUnits(enemyProvince);
-                return 1;
+                enemyProvince.lockDownProvince();
+                return "Won battle!";
             } 
             if (humanStrength == 0) {
                 // enemy won
                 humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
                 enemyProvince.moveUnits(humanProvince); 
-                return -1;
+                return "Lost battle";
             }
 
             numEncounters += 1; 
             // recalculate strengths
             
             if (numEncounters >= 200) {
-                return 0;
+                return "Drew battle!";
             }
         } 
-        return 0;
+        return "Drew battle!";
     }
+    
+    
 }
