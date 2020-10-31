@@ -40,7 +40,7 @@ public class Faction {
             int newProvinceWealth = province.getWealth() - tax;
             if (newProvinceWealth < 0) {
                 province.setWealth(0);
-                setTreasury(province.getWealth());
+                setTreasury(getTreasury() + province.getWealth());
             } else {
                 province.setWealth(newProvinceWealth);
                 setTreasury(getTreasury() + tax);

@@ -57,6 +57,9 @@ public class Province {
         this.movementPointsReq = 4;
         buildings = new ArrayList<>();
         troopBuildings = new ArrayList<>();
+        taxLevel = "Low";
+        taxRate = 0.1;
+        growth = 10;
     }
 
     /**
@@ -243,7 +246,7 @@ public class Province {
             return s;
         }
 
-        //TODO
+        // TODO
         // check if any of our buildings will have a reduced cost time or build time
         // cost is a multiplier and buildtime is a constant turn reduction
         double costReduction = 1;
@@ -308,32 +311,31 @@ public class Province {
         for (Unit unit : units) {
             unit.update();
         }
-        growWealth();       
+        growWealth();      
     }
 
     public List<Building> getBuildings() {
         return buildings;
     }
-
-
     
-    public void setTax() {
+    public void setTaxLevel(String taxLevel) {
+        this.taxLevel = taxLevel;
         switch (taxLevel) {
             case "Low":
                 growth = 10;
                 taxRate = 0.10;
                 break;
             case "Medium":
-                this.growth = 0;
-                this.taxRate = 0.15;
+                growth = 0;
+                taxRate = 0.15;
                 break;
             case "High":
-                this.growth = -10;
-                this.taxRate = 0.20;
+                growth = -10;
+                taxRate = 0.20;
                 break;
             case "Very High":
-                this.growth = -30;
-                this.taxRate = 0.25;
+                growth = -30;
+                taxRate = 0.25;
                 for (Unit unit : this.units) {
                     unit.setMorale(unit.getMorale() - 1);
                 }
@@ -343,15 +345,13 @@ public class Province {
 
     public String recruitSoldier(String unitType, int numTroops) throws IOException {
         Unit newUnit = new Unit(unitType, numTroops);
-
-        /*
-        // TODO implement cost of soldiers first
-        //check if we have enough money
-        if (unit.getCost()*unit.getNumTroops() > getFaction().getTreasury()) {
+        
+        // check if we have enough money
+        if (newUnit.getCost()*newUnit.getNumTroops() > getFaction().getTreasury()) {
             String s = "Not enough gold!";
             return s;
         }
-        */
+        
         
         //check if we have the right building and building level to create this troop
         Building buildingAvailable = null;
@@ -379,7 +379,7 @@ public class Province {
         //add the troop and substract the money
         // need to account for soldier training time
         buildingAvailable.trainingUnit(newUnit);
-        // this.faction.removeGold(unit.getCost());
+        faction.setTreasury(faction.getTreasury() - newUnit.getCost()*newUnit.getNumTroops());
 
         String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
                     + "\n Will begin training.";
@@ -414,11 +414,11 @@ public class Province {
         this.growth = growth;
     }
 
-    public double getTaxRate() {
-        return taxRate;
+    public String getTaxLevel() {
+        return taxLevel;
     }
 
-    public void setTaxRate(double taxRate) {
-        this.taxRate = taxRate;
+    public double getTaxRate() {
+        return taxRate;
     }
 }
