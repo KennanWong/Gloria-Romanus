@@ -1,6 +1,5 @@
 package unsw.gloriaromanus;
 
-import unsw.gloriaromanus.infrastructure.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.Math;
+
+
 
 
 public class Province {
@@ -32,12 +34,10 @@ public class Province {
     private int movementPointsReq;
     private boolean locked = false;
     private ArrayList<Building> buildings;
-    private ArrayList<Building> troopBuildings;
-    private int provinceWealth; //total wealth of the province
+    private int wealth; //total wealth of the province
     private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
-    //private ArrayList<WealthBuilding> wealthBuildings;
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
@@ -53,7 +53,9 @@ public class Province {
         this.roadLevel = "No roads";
         this.movementPointsReq = 4;
         buildings = new ArrayList<>();
-        troopBuildings = new ArrayList<>();
+        taxLevel = "Low";
+        taxRate = 0.1;
+        growth = 10;
     }
 
     /**
@@ -118,6 +120,8 @@ public class Province {
     public void lockDownProvince() {
         locked = true;
     }
+
+    
 
     public void unlockProvince() {
         locked = false;
@@ -238,50 +242,28 @@ public class Province {
             return s;
         }
 
-        //TODO
-        // check if any of our buildings will have a reduced cost time or build time
-        // cost is a multiplier and buildtime is a constant turn reduction
-        double costReduction = 1;
-        int buildTimeReduction = 0;
-
-        //create the building and add it to our lists of buildings
-        switch (building) {
-            case "Infantry":
-                Infantry i = new Infantry(costReduction, buildTimeReduction, this);
-                this.buildings.add(i);
-                this.troopBuildings.add(i);
-                return "Construction began sucessfully!";
-            case "Cavalry":
-                Cavalry c = new Cavalry(costReduction, buildTimeReduction, this);
-                this.buildings.add(c);
-                this.troopBuildings.add(c);
-                return "Construction began sucessfully!";
-            case "Artillery":
-                Artillery a = new Artillery(costReduction, buildTimeReduction, this);
-                this.buildings.add(a);
-                this.troopBuildings.add(a);
-                return "Construction began sucessfully!";
-            /*
-            case "Mine":
-                
-                break;
-            case "Farm":
-                
-                break;
-            case "Port":
-                
-                break;
-            case "Market":
-                
-                break;
-            case "Wall":
-
-                break;
-            */
+        //check if we already have that same type of building here
+        if (buildingPresent(building)) {
+            String s = "You already have this type of building!";
+            return s;
         }
 
-        String s = "Could not build building of type " + building + "!";
-        return s;
+        // check if any of our buildings will have a reduced cost time or build time
+        double costReduction = faction.getBuildingCostReductionMultiplier();
+        int buildTimeReduction = faction.getNumMaxLevelMines();
+        Building b = new Building(building, costReduction, buildTimeReduction, this);
+        
+        
+        if (b.getCost() > faction.getTreasury()) {
+            return "Not enough money!";
+        }
+
+        
+        buildings.add(b);
+        faction.setTreasury(faction.getTreasury() - b.getCost());
+        
+        return "Construction began sucessfully!";
+        
     }
 
     private boolean underConstruction() {
@@ -293,51 +275,51 @@ public class Province {
         return false;
     }
 
+    private boolean buildingPresent(String building) {
+        boolean flag = false;
+        for (Building b : getBuildings()) {
+            if (b.getType().equals(building)) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+
     /**
-     * Method to update a province, it should take in a turn number and update buildings and troop
-     * number accordingly
-     * @param turnNumber
+     * Method to update a province by applying the changes made to the province update building times, troop training and wealth generation
      */
     public void update() {
-        // check for updates to buildings
         for (Building building : this.buildings) {
             building.update();
         }
-
-        //tax rates would have been controlled in controller
-        //the new tax rate would be shown first
-        //then when they end turn the effects will follow
-
-        //Different tax rates have different effects
-        // applyTaxRateEffects();
-        
+        for (Unit unit : units) {
+            unit.update();
+        }
+        growWealth();      
     }
 
     public List<Building> getBuildings() {
         return buildings;
     }
-
-    private void applyTaxRateEffects() {
-        switch (this.taxLevel) {
+    
+    public void setTaxLevel(String taxLevel) {
+        this.taxLevel = taxLevel;
+        switch (taxLevel) {
             case "Low":
-                this.growth = 10;
-                this.taxRate = 0.10;
-                this.faction.addGold(0.10*this.provinceWealth + 10);
+                growth = 10;
+                taxRate = 0.10;
                 break;
             case "Medium":
-                this.growth = 0;
-                this.taxRate = 0.15;
-                this.faction.addGold(0.15*this.provinceWealth);
+                growth = 0;
+                taxRate = 0.15;
                 break;
             case "High":
-                this.growth = -10;
-                this.taxRate = 0.20;
-                this.faction.addGold(0.20*this.provinceWealth - 10);
+                growth = -10;
+                taxRate = 0.20;
                 break;
             case "Very High":
-                this.growth = -30;
-                this.taxRate = 0.25;
-                this.faction.addGold(0.25*this.provinceWealth - 30);
+                growth = -30;
+                taxRate = 0.25;
                 for (Unit unit : this.units) {
                     unit.setMorale(unit.getMorale() - 1);
                 }
@@ -347,20 +329,17 @@ public class Province {
 
     public String recruitSoldier(String unitType, int numTroops) throws IOException {
         Unit newUnit = new Unit(unitType, numTroops);
-
-        /*
-        // TODO implement cost of soldiers first
-        //check if we have enough money
-        if (unit.getCost()*unit.getNumTroops() > getFaction().getTreasury()) {
+        
+        // check if we have enough money
+        if (newUnit.getCost()*newUnit.getNumTroops() > getFaction().getTreasury()) {
             String s = "Not enough gold!";
             return s;
         }
-        */
+        
         
         //check if we have the right building and building level to create this troop
         Building buildingAvailable = null;
-        ArrayList<Building> troopBuilding = (ArrayList<Building>) this.troopBuildings;
-        for (Building building : troopBuilding) {
+        for (Building building : buildings) {
             /*
             if (building.getType() == unit.getCategory() && building.getLevel() == unit.getLevel()) {
                 buildingAvailable = true;
@@ -383,10 +362,46 @@ public class Province {
         //add the troop and substract the money
         // need to account for soldier training time
         buildingAvailable.trainingUnit(newUnit);
-        // this.faction.removeGold(unit.getCost());
+        faction.setTreasury(faction.getTreasury() - newUnit.getCost()*newUnit.getNumTroops());
 
         String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
                     + "\n Will begin training.";
         return s;
+    }
+
+    private void growWealth() {
+        int newProvinceWealth = getGrowth() + getWealth();
+        if (newProvinceWealth < 0) {
+            setWealth(0);
+        } else {
+            setWealth(newProvinceWealth);
+        }
+    }
+
+    public int getWealth() {
+        return wealth;
+    }
+
+    /** 
+     * @pre value rounded with Math.round() && greater than 0
+     */
+    public void setWealth(int wealth) {
+        this.wealth = wealth;
+    }
+
+    public int getGrowth() {
+        return growth;
+    }
+
+    public void setGrowth(int growth) {
+        this.growth = growth;
+    }
+
+    public String getTaxLevel() {
+        return taxLevel;
+    }
+
+    public double getTaxRate() {
+        return taxRate;
     }
 }

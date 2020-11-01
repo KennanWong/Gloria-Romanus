@@ -24,6 +24,12 @@ Final milestone: 5PM Sunday Week 9 (Demonstration: Week 10 Lab)
 
 ---
 
+## Simplified Project Spec
+
+After considering the student feedback, we have now simplified the project specification. Please note that there are no new requirements in the revised specification. However, we have removed some features, in order to simplify the tasks. Importantly, whatever work you have done so far will be awarded marks accordingly. In case you have already implemented features that are not part of the Simplified Project Specification, please consult your tutor for trading them against the rest of the work required for the project.
+
+The simplified project spec is available in the file [*SPEC_v2.md*](SPEC_v2.md)
+
 ## Overview
 
 You have received a request from a client for an application to play a "Risk" style video game. With a partner from your lab class, you will follow an agile development process to design and implement a desktop Java application that satisfies the requirements of the client (see below). The final piece of software you deliver is expected to be of professional quality, user-friendly, and demonstrate the knowledge and skills you have acquired in this course.
@@ -263,9 +269,9 @@ Factions should be able to develop infrastructure in the following categories:
 * Troop production buildings - factions should be able to recruit heavy infantry, spearmen, missile infantry, melee cavalry, horse archers, elephants, chariots, and artillery. Different categories of soldiers will require different "chains" of buildings.
 * Wealth generation buildings - factions should be able to construct markets, farms, ports (if on a region bordering the sea), and mines. Each building adds a scalar value to the wealth of the region, and adds a scalar value to the before-tax rate of town-wealth growth of the region each turn, at different rates. In addition, the following additional effects occur:
     * More advanced farms increase the rate at which troops can be produced each turn in the province
-    * Each port increases the before-tax rate of town-wealth growth for all sea regions owned by a province by an additional scalar value
+    * Each port increases the before-tax rate of town-wealth growth for all sea regions owned by a faction by an additional scalar value
     * Each market reduces the construction cost of all buildings across the faction in a multiplicative fashion - i.e. if one market reduces construction costs by 2%, and another by 3%, and the current construction cost of buildings in the faction this turn is *C*, then the new construction cost of buildings in the faction this turn will be *C x (100%-2%) x (100%-3%)* = *C x 95.06%*
-    * Each mine reduces the initial cost of all soldiers in the province in a multiplicative fashion (similar calculation to markets). The highest level of mine will reduce the time taken to construct all buildings across the faction by 1 turn (the minimum time to build a building, even after applying this affect several times, is 1 turn). This bonus can be applied multiple times - e.g. building the most advanced mines in 2 settlements will reduce the number of turns taken to build all buildings across the faction by 2 turns, down to a minimum of 1 turn).
+    * Each mine reduces the initial cost of all soldiers recruited in the province in a multiplicative fashion (similar calculation to markets). The highest level of mine will reduce the time taken to construct all buildings across the faction by 1 turn (the minimum time to build a building, even after applying this affect several times, is 1 turn). This bonus can be applied multiple times - e.g. building the most advanced mines in 2 settlements will reduce the number of turns taken to build all buildings across the faction by 2 turns, down to a minimum of 1 turn).
 * Walls - these provide buffers to all troops defending a province. They have a random chance of causing damage to attacking troops if upgraded to have archer towers or ballista towers. Towers have infinite morale, and can only be damaged by artillery (but are instantly repaired without cost after the battle).
 * Smiths - these provide battle bonuses to troops produced in the region. Where both scalar addition bonuses (e.g. +1 attack damage) and multiplicative bonuses (e.g. 20% loss in speed) apply due to receiving multiple armour upgrades, the scalar addition bonuses are applied first. Smith bonuses can include 1 or more of the following (these bonuses stack):
     * Upgraded helmets - enemy unit attack damage reduced by 1 (to a minimum of 1 attack damage)
@@ -312,7 +318,7 @@ The following special abilities should be available and implemented automaticall
 * For all melee cavalry: "Heroic charge" - where the army has fewer than half the number of units as the enemy, this cavalry unit will double its charge attack damage, and have 50% higher morale
 * For all pikemen or hoplite units: "Phalanx" - these hoplites or pikemen have double the melee defence, but half of the speed, as they are otherwise configured to have
 * For all javelin-skirmisher units: "skirmisher anti-armour" - in ranged engagements, troops fighting these skirmishers only receive half the protection from armour they would receive otherwise
-* For all elephant units: "Elephants running amok" - during any engagement with elephants, there is a 10% chance that the casualties inflicted by a unit of elephants will instead be directed at a random allied unit (as if the elephants were battling the allied unit directly)
+* For all elephant units: "Elephants running amok" - during any engagement with elephants, there is a 10% chance that the damage/casualties inflicted by a unit of elephants will instead be directed at a random allied unit which is still participating in the battle (as if the elephants were battling the allied unit directly)
 * For all horse-archer units: "Cantabrian circle" - when enemy missile units engage this unit of horse archers, the enemy missile units will suffer a 50% loss to missile attack damage
 * For all druid units: "Druidic fervour" - allied units in an army with druids enjoy a 10% bonus to morale, and enemy units suffer a 5% penalty to morale, whilst the druids haven't routed. The effect of this ability is amplified by scalar addition, and can be amplified up to 5 times (e.g. 2 druids results in allies receiving 20% bonus to morale and enemy units suffering 10% penalty, however 6 druids provides 50% bonus and 25% penalty respectively)
 * For all melee infantry: "Shield charge" - for every 4th engagement by this unit of melee infantry per battle, the value of shield defense is added to this unit's attack damage value
@@ -455,7 +461,7 @@ Against infantry or cavalry, towers inflict damage against the enemy unit in the
 
 Units fighting towers do not route, and have a chance of escaping from each engagement (returning to the army for another skirmish) of:
 
-* minimum(50% + (speed x 10%), 100%) *
+* minimum(50% + (speed x 10%), 100%)
 
 #### Inflicting of casualties in an engagement
 
@@ -463,7 +469,7 @@ Melee units cannot inflict damage in a ranged engagement.
 
 Ranged units in a ranged engagement inflict casualties against the opposing unit equal to (up to a maximum of the entire enemy unit, with a minimum of none of the enemy unit):
 
-* (size of enemy unit at start of engagement x 10%) x (Missile attack damage of unit/(effective armor of enemy unit + effective shield of enemy unit)) x (N+1) *
+* (size of enemy unit at start of engagement x 10%) x (Missile attack damage of unit/(effective armor of enemy unit + effective shield of enemy unit)) x (N+1)
 
 Where *N* is a normally distributed random variable with mean 0 and standard deviation 1 (standard normal distribution).
 
@@ -473,12 +479,15 @@ https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Random.ht
 
 You should ensure the ranged attack damage above incorporates the effect of any bonuses/penalties (e.g. the 10% loss of missile attack damage from fire arrows).
 
+NOTE: in the above formula, the Berserker special ability will result in a Zero Division Error. Handle this by capping the following to 10 (rather than the infinity implied by zero division error):
+Missile attack damage of unit/(effective armor of enemy unit + effective shield of enemy unit)
+
 
 Cavalry/chariots/elephants attacking a province with walls do not receive any melee bonus from their charge statistic. Melee cavalry/chariots/elephants defending a province with walls, or attacking a province without walls, will have an attack damage value in all engagements equal to their *melee attack damage + charge value*. Infantry and artillery do not receive a charge statistic (only cavalry/chariots/elephants do).
 
 Units in a melee engagement inflict casualties against the opposing unit equal to (up to a maximum of the entire enemy unit, with a minimum of none of the enemy unit):
 
-* (size of enemy unit at start of engagement x 10%) x (Effective melee attack damage of unit/(effective armor of enemy unit + effective shield of enemy unit + effective defense skill of enemy unit)) x (N+1) *
+* (size of enemy unit at start of engagement x 10%) x (Effective melee attack damage of unit/(effective armor of enemy unit + effective shield of enemy unit + effective defense skill of enemy unit)) x (N+1)
 
 Where *N* is a normally distributed random variable with mean 0 and standard deviation 1 (standard normal distribution).
 
@@ -507,7 +516,7 @@ For example, if our above unit of peasants suffered casualties equal to half of 
 (1/2) / (1/4) x 10% = 2 x 10% = 20%
 And thus the unit of peasants would have a 70% + 20% = 90% chance of breaking.
 
-i.e. if your unit loses a larger proportion of it's soldiers than the opposing unit in an engagement, the chance of your unit to break is increased by a larger value than than the enemy unit from the base fleeing chance.
+i.e. if your unit loses a larger proportion of it's soldiers than the opposing unit in an engagement, the chance of your unit to break is increased by a larger value than the enemy unit from the base fleeing chance.
 
 However, for any engagement, the minimum chance of breaking is 5%, and the maximum chance of breaking is 100%, after these calculations/adjustments.
 
@@ -647,7 +656,7 @@ As you progress through the rest of the project, you will keep your board and is
 
 Based on your requirements analysis, and all feedback you have received, you will produce a domain model for the backend component of your project in the form of a conceptual UML class diagram, implement it in Java and write JUnit tests to test its functionality.
 
-In deciding on your design and writing your implementation, you should follow the practices and design principles covered in the course. You are expected to apply at least 3 of the design patterns covered in the course. It is up to you where they are applied, but you will be expected to justify how and why you used them to your tutor during demonstration.
+In deciding on your design and writing your implementation, you should follow the practices and design principles covered in the course. You are expected to apply at least 3 of the design patterns (3 unique patterns) covered in the course. It is up to you where they are applied, but you will be expected to justify how and why you used them to your tutor during demonstration.
 
 Your class diagram only needs to be conceptual (showing the general structure of the classes and their relationship), but it needs to be consistent with the code and clearly indicate where you're using design patterns (use labels if necessary).
 

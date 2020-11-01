@@ -1,4 +1,4 @@
-package unsw.gloriaromanus.infrastructure;
+package unsw.gloriaromanus;
 
 //import java.lang.Math; 
 
@@ -6,6 +6,9 @@ import java.io.IOException;
 //import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import com.fasterxml.jackson.databind.util.JSONPObject;
+
 /*
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +29,7 @@ import unsw.gloriaromanus.*;
 /**
  * A base class for every type of building we have
  */
-public abstract class Building {
+public class Building {
     private int cost;
     private int buildTime;
     private boolean built;
@@ -35,6 +38,8 @@ public abstract class Building {
     private String status; // Possible statuses: Being built, Training, Idle
     private Province province; // the province the building is from
     private Unit unitBeingTrained; // the unit being trained in this building
+    private JSONArray buildingConfig;
+    private double bonus;
 
     // gets called after every turn, and the building lowers it's build time
     public void update() {
@@ -65,29 +70,31 @@ public abstract class Building {
 
     public JSONObject checkUpgrade() throws IOException {
         // return the cost and buildtime of the next building level
-        // for UI
-        String buildingConfigurationContent = Files
-                .readString(Paths.get("src/unsw/gloriaromanus/infracstructure/building_configuration.json"));
-        JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
-        JSONObject buildingType = buildingConfiguration.getJSONObject(this.type);
-        JSONArray level = buildingType.getJSONArray("level");
-        JSONObject j = level.getJSONObject(this.level + 1);
+        JSONObject j = buildingConfig.getJSONObject(this.level + 1);
 
         return j;
     }
 
     public void upgrade() {
         // actually upgrade the building to a higher level
-        this.level++;
-        this.built = false;
-        this.buildTime = 2;
+        if (level < 4) {
+            level++;
+            built = false;
+            buildTime = buildingConfig.getJSONObject(level).getInt("buildTime");
+        }
+        
+        
     }
 
-    /*
-     * public int getCost() { return cost; }
-     * 
-     * public void setCost(int cost) { this.cost = cost; }
-     */
+    
+    public int getCost() { 
+        return cost; 
+    }
+    
+    public void setCost(int cost) { 
+        this.cost = cost; 
+    }
+    
 
     public int getBuildTime() {
         return buildTime;
@@ -118,16 +125,15 @@ public abstract class Building {
                 .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
         JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
-        JSONArray level = buildingType.getJSONArray("level");
-        JSONObject buildStats = level.getJSONObject(0);
-        // int cost = Integer.parseInt(buildStats.getString("cost"));
-        this.cost = (int) Math.round(cost*costMultiplier);
-        int buildTime = buildStats.getInt("buildTime");
+        JSONArray buildingConfig = buildingType.getJSONArray("level");
+        JSONObject buildStats = buildingConfig.getJSONObject(0);
+        this.cost = (int) Math.round(buildStats.getInt("cost")*costMultiplier);
+        this.buildTime = buildStats.getInt("buildTime") - buildTimeReduction;
         this.type = type;
-        this.buildTime = buildTime - buildTimeReduction;
         this.level = 0;
         this.built = false;
         this.province = province;
+
         status = "Being built";
     }
 
@@ -157,13 +163,13 @@ public abstract class Building {
         } 
         
         building.put("buildTime", buildTime);
-        // building.put("cost", cost);
+        building.put("cost", cost);
 
         return building;
     }
 
     public void setBuildingFromJSON(JSONObject json) throws JSONException, IOException {
-        // type = json.getString("type");
+        type = json.getString("type");
         level = json.getInt("level");
         built = json.getBoolean("built");
         status = json.getString("status");
@@ -172,7 +178,16 @@ public abstract class Building {
             unitBeingTrained = new Unit(unitBeingTrainedJSON.getString("type"), unitBeingTrainedJSON.getInt("numTroops"));
             unitBeingTrained.setUnitFromJSON(unitBeingTrainedJSON);
         } 
-        // cost = json.getInt("cost");
+        cost = json.getInt("cost");
 
     }
+
+    public double getBonus() {
+        return bonus;
+    }
+
+    public void setBonus(double bonus) {
+        this.bonus = bonus;
+    }
+
 }
