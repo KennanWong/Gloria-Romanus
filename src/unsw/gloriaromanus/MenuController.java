@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import org.json.JSONObject;
 
-import javafx.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
