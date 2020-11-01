@@ -138,33 +138,25 @@ public class GloriaRomanusController{
     JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
 
     // create the game map
-    provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+    provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
     lockedProvinces = new ArrayList<>();
-    
-    if (stage != null) {
-      // set user declared factions
-      FactionData data = (FactionData) stage.getUserData();
-      user1 = provinceMap.getFaction(data.getFaction1());
-      user1.setUser(1);
-      user2 = provinceMap.getFaction(data.getFaction2());
-      user2.setUser(2);
-    } else {
-      // set default user factions
-      user1 = provinceMap.getFaction("Rome");
-      user1.setUser(1);
-      user2 = provinceMap.getFaction("Gaul");
-      user2.setUser(2);
+
+    String factionAssignmentContent = Files.readString(Paths.get("src/unsw/gloriaromanus/faction_assignment.json"));
+    JSONObject factionAssignmentJSON = new JSONObject(factionAssignmentContent);
+    for (String factionName : factionAssignmentJSON.keySet()) {
+      if (factionAssignmentJSON.getInt(factionName) == 1) {
+        user1 = provinceMap.getFaction(factionName);
+        provinceMap.getFaction(factionName).setUser(1);
+      }
+      if (factionAssignmentJSON.getInt(factionName) == 2) {
+        user2 = provinceMap.getFaction(factionName);
+        provinceMap.getFaction(factionName).setUser(2);
+      }
     }
+
 
     printMessageToTerminal("Player1 : " + user1.getName());
     printMessageToTerminal("Player2: " + user2.getName());
-    // set the user factions
-    user1 = provinceMap.getFaction("Rome");
-    user2 = provinceMap.getFaction("Gaul");
-
-
-    printMessageToTerminal("Player1 : Rome");
-    printMessageToTerminal("Player2: Gaul");
     printMessageToTerminal("It is player1's turn");
     turn_number.setText(Integer.toString(turnCounter));
     treasury.setText(Integer.toString(user1.getTreasury()));
@@ -172,23 +164,6 @@ public class GloriaRomanusController{
     initializeProvinceLayers();
   }
 
-  @FXML
-  private void setFactions(ActionEvent event) {
-    // Step 1
-    Node node = (Node) event.getSource();
-    Stage stage = (Stage) node.getScene().getWindow();
-    // Step 2
-    FactionData data = (FactionData) stage.getUserData();
-    // Step 3
-    if (data != null) {
-      user1 = provinceMap.getFaction(data.getFaction1());
-      user2 = provinceMap.getFaction(data.getFaction2());
-      printMessageToTerminal("Player1 : " + user1.getName());
-      printMessageToTerminal("Player2: " + user2.getName());
-    }
-    
-    
-  }
 
   @FXML
   public void clickedInvadeButton(ActionEvent e) throws IOException {
@@ -284,18 +259,13 @@ public class GloriaRomanusController{
     
     turnCounter = provinceMap.loadGame();
     // allocate factions
-    int counter = 0;
     for (Faction faction : provinceMap.getFactions().values()) {
-      printMessageToTerminal("Faction: " + faction.getName());
-      if (counter == 0) {
-        printMessageToTerminal("User 1 faction: " + faction.getName());
+      if (faction.getUser() == 1) {
         user1 = faction;
       }
-      if (counter == 1) {
-        printMessageToTerminal("User 2 faction: " + faction.getName());
+      if (faction.getUser() == 2) {
         user2 = faction;
       }
-      counter++;
     }
 
     setFactions();
@@ -758,11 +728,4 @@ public class GloriaRomanusController{
     }
   }
 
-  public void setStage(Stage stage) {
-    this.stage = stage;
-  }
-
-  public void setTest(String test) {
-    this.test = test;
-  }
 }
