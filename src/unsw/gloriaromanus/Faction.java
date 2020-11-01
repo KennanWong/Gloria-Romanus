@@ -19,19 +19,42 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.Math;
-
+/**
+ * @invar treasury > 0
+ */
 public class Faction {
     private String name;
     private Map<String, Province> provinces;
     private int treasury;
     private int user;
+    private int numMaxLevelMines;
+    private double buildingCostReductionMultiplier;
+    private double soldierCostReductionMultiplier;
 
     public Faction (String name) {
         this.name = name;
         this.provinces = new HashMap<String, Province>();
         this.treasury = 500;
+        this.buildingCostReductionMultiplier = 1;
+        this.soldierCostReductionMultiplier = 1;
+        this.numMaxLevelMines = 0;
     }
+
+    
+    public void collectTaxes() {
+        for (Province province : provinces.values()) {
+            int tax = (int) Math.round(province.getTaxRate()*province.getWealth());
+            int newProvinceWealth = province.getWealth() - tax;
+            if (newProvinceWealth < 0) {
+                province.setWealth(0);
+                setTreasury(getTreasury() + province.getWealth());
+            } else {
+                province.setWealth(newProvinceWealth);
+                setTreasury(getTreasury() + tax);
+            }
+        }
+    }
+    
 
     public String getName() {
         return name;
@@ -66,16 +89,35 @@ public class Faction {
         return treasury;
     }
 
+    /** 
+     * @pre value rounded with Math.round() && greater than 0
+     */
     public void setTreasury(int gold) {
         this.treasury = gold;
     }
 
-    public void addGold(double gold) {
-        this.treasury += Math.round(gold);
+    public int getNumMaxLevelMines() {
+        return numMaxLevelMines;
     }
 
-    public void removeGold(double gold) {
-        this.treasury -= Math.round(gold);
+    public void setNumMaxLevelMines(int numMaxLevelMines) {
+        this.numMaxLevelMines = numMaxLevelMines;
+    }
+
+    public double getBuildingCostReductionMultiplier() {
+        return buildingCostReductionMultiplier;
+    }
+
+    public void setBuildingCostReductionMultiplier(double buildingCostReductionMultiplier) {
+        this.buildingCostReductionMultiplier = buildingCostReductionMultiplier;
+    }
+
+    public double getSoldierCostReductionMultiplier() {
+        return soldierCostReductionMultiplier;
+    }
+
+    public void setSoldierCostReductionMultiplier(double soldierCostReductionMultiplier) {
+        this.soldierCostReductionMultiplier = soldierCostReductionMultiplier;
     }
 
     public void setUser(int user) {
@@ -86,3 +128,4 @@ public class Faction {
         return user;
     }
 }
+

@@ -46,5 +46,43 @@
             "cost" : 3000,
             "buildTime" : 3
         }]
+    },
+    "Market" : {
+        "level" : [{
+            "bonus": 0.02,
+            "cost" : 500,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.03,
+            "cost" : 200,
+            "buildTime" : 1
+        }, {
+            "bonus": 0.04,
+            "cost" : 400,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.05,
+            "cost" : 1000,
+            "buildTime" : 3
+        }]
+    },
+    "Mine" : {
+        "level" : [{
+            "bonus": 0.02,
+            "cost" : 500,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.03,
+            "cost" : 200,
+            "buildTime" : 1
+        }, {
+            "bonus": 0.04,
+            "cost" : 400,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.05,
+            "cost" : 10000,
+            "buildTime" : 3
+        }]
     }
 }
