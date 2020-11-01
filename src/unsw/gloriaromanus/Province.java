@@ -1,6 +1,5 @@
 package unsw.gloriaromanus;
 
-import unsw.gloriaromanus.infrastructure.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -259,12 +258,12 @@ public class Province {
             return "Not enough money!";
         }
 
-        if ()
-            buildings.add(i);
-            faction.setTreasury(faction.getTreasury() - i.getCost());
-            }
-            return "Construction began sucessfully!";
-        }
+        
+        buildings.add(b);
+        faction.setTreasury(faction.getTreasury() - b.getCost());
+        
+        return "Construction began sucessfully!";
+        
     }
 
     private boolean underConstruction() {
