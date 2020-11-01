@@ -1,0 +1,88 @@
+{
+    "Artillery" : {
+        "level" : [{
+            "cost" : 500,
+            "buildTime" : 5
+        }, {
+            "cost" : 1000,
+            "buildTime" : 2
+        }, {
+            "cost" : 2000,
+            "buildTime" : 3
+        }, {
+            "cost" : 5000,
+            "buildTime" : 4
+        }, {
+            "cost" : 10000,
+            "buildTime" : 5
+        }]  
+    },
+    "Cavalry" : {
+        "level" : [{
+            "cost" : 300,
+            "buildTime" : 3
+        }, {
+            "cost" : 600,
+            "buildTime" : 1
+        }, {
+            "cost" : 1200,
+            "buildTime" : 2
+        }, {
+            "cost" : 3000,
+            "buildTime" : 3
+        }]
+    },
+    "Infantry" : {
+        "level" : [{
+            "cost" : 100,
+            "buildTime" : 2
+        }, {
+            "cost" : 200,
+            "buildTime" : 1
+        }, {
+            "cost" : 400,
+            "buildTime" : 2
+        }, {
+            "cost" : 3000,
+            "buildTime" : 3
+        }]
+    },
+    "Market" : {
+        "level" : [{
+            "bonus": 0.02,
+            "cost" : 500,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.03,
+            "cost" : 200,
+            "buildTime" : 1
+        }, {
+            "bonus": 0.04,
+            "cost" : 400,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.05,
+            "cost" : 1000,
+            "buildTime" : 3
+        }]
+    },
+    "Mine" : {
+        "level" : [{
+            "bonus": 0.02,
+            "cost" : 500,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.03,
+            "cost" : 200,
+            "buildTime" : 1
+        }, {
+            "bonus": 0.04,
+            "cost" : 400,
+            "buildTime" : 2
+        }, {
+            "bonus": 0.05,
+            "cost" : 10000,
+            "buildTime" : 3
+        }]
+    }
+}
