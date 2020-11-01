@@ -21,10 +21,13 @@ import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -82,6 +85,7 @@ public class GloriaRomanusController{
 
   // private String humanFaction;
 
+  private Stage stage;      // the controllers stage;
   //private ArrayList<Faction> factions;
 
 
@@ -98,7 +102,7 @@ public class GloriaRomanusController{
   private Feature currentlySelectedHumanProvince;
   private Feature currentlySelectedEnemyProvince;
 
-
+  private String test;
   @FXML
   private TextField province_1;
   @FXML
@@ -136,7 +140,24 @@ public class GloriaRomanusController{
     // create the game map
     provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
     lockedProvinces = new ArrayList<>();
+    
+    if (stage != null) {
+      // set user declared factions
+      FactionData data = (FactionData) stage.getUserData();
+      user1 = provinceMap.getFaction(data.getFaction1());
+      user1.setUser(1);
+      user2 = provinceMap.getFaction(data.getFaction2());
+      user2.setUser(2);
+    } else {
+      // set default user factions
+      user1 = provinceMap.getFaction("Rome");
+      user1.setUser(1);
+      user2 = provinceMap.getFaction("Gaul");
+      user2.setUser(2);
+    }
 
+    printMessageToTerminal("Player1 : " + user1.getName());
+    printMessageToTerminal("Player2: " + user2.getName());
     // set the user factions
     user1 = provinceMap.getFaction("Rome");
     user2 = provinceMap.getFaction("Gaul");
@@ -149,6 +170,24 @@ public class GloriaRomanusController{
     treasury.setText(Integer.toString(user1.getTreasury()));
     setFactions();
     initializeProvinceLayers();
+  }
+
+  @FXML
+  private void setFactions(ActionEvent event) {
+    // Step 1
+    Node node = (Node) event.getSource();
+    Stage stage = (Stage) node.getScene().getWindow();
+    // Step 2
+    FactionData data = (FactionData) stage.getUserData();
+    // Step 3
+    if (data != null) {
+      user1 = provinceMap.getFaction(data.getFaction1());
+      user2 = provinceMap.getFaction(data.getFaction2());
+      printMessageToTerminal("Player1 : " + user1.getName());
+      printMessageToTerminal("Player2: " + user2.getName());
+    }
+    
+    
   }
 
   @FXML
@@ -183,6 +222,7 @@ public class GloriaRomanusController{
     if (gameFinished) {
       return;
     }
+    setFactions();
     if (currentlySelectedProvince1 == null || currentlySelectedProvince2 == null) {
       printMessageToTerminal("Please select two provinces");
       resetSelections();  // reset selections in UI
@@ -243,12 +283,26 @@ public class GloriaRomanusController{
   public void clickedLoadButton(ActionEvent e) throws IOException {
     
     turnCounter = provinceMap.loadGame();
+    // allocate factions
+    int counter = 0;
+    for (Faction faction : provinceMap.getFactions().values()) {
+      printMessageToTerminal("Faction: " + faction.getName());
+      if (counter == 0) {
+        printMessageToTerminal("User 1 faction: " + faction.getName());
+        user1 = faction;
+      }
+      if (counter == 1) {
+        printMessageToTerminal("User 2 faction: " + faction.getName());
+        user2 = faction;
+      }
+      counter++;
+    }
+
     setFactions();
-    user1 = provinceMap.getFaction(user1.getName());
-    user2 = provinceMap.getFaction(user2.getName());
     addAllPointGraphics(); // reset graphics
-    
     printMessageToTerminal("Loaded game from save!");
+    printMessageToTerminal("Player 1: " + user1.getName());
+    printMessageToTerminal("Player 2: " + user2.getName());
     printMessageToTerminal("It is currently player" + (turnCounter%2 + 1) + "'s turn.");
     turn_number.setText(Integer.toString(turnCounter));
 
@@ -704,4 +758,11 @@ public class GloriaRomanusController{
     }
   }
 
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
+
+  public void setTest(String test) {
+    this.test = test;
+  }
 }

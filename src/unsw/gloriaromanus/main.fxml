@@ -43,6 +43,12 @@
                 <TextField fx:id="province_2" text="" editable="false"/>
             </VBox>
         </HBox>
+        <Button text="Invade" onAction="#clickedInvadeButton"/><Button text="Move Troops" onAction="#clickedMoveButton"/>
+        <Button text="End turn" onAction="#clickedEndTurnButton"/>
+        <Button text="Save Game" onAction="#clickedSaveButton"/>
+        <Button text="Load Game" onAction="#clickedLoadButton"/>
+        <Button text="Reset View" onAction="#clickedResetButton"/>
+        <Button text="Set factions" onAction="#setFactions"/>
         <HBox>
             <Button text="Invade" onAction="#clickedInvadeButton"/>
             <Button text="Move Troops" onAction="#clickedMoveButton"/>

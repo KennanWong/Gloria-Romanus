@@ -26,6 +26,7 @@ public class Faction {
     private String name;
     private Map<String, Province> provinces;
     private int treasury;
+    private int user;
     private int numMaxLevelMines;
     private double buildingCostReductionMultiplier;
     private double soldierCostReductionMultiplier;
@@ -117,6 +118,14 @@ public class Faction {
 
     public void setSoldierCostReductionMultiplier(double soldierCostReductionMultiplier) {
         this.soldierCostReductionMultiplier = soldierCostReductionMultiplier;
+    }
+
+    public void setUser(int user) {
+        this.user = user;
+    }
+
+    public int getUser() {
+        return user;
     }
 }
 
