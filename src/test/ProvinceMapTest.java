@@ -42,7 +42,7 @@ public class ProvinceMapTest {
         JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
     
         // create the game map
-        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
 
         // Check factions
         assert(provinceMap.getFaction("Rome").getName().equals("Rome"));
@@ -66,7 +66,7 @@ public class ProvinceMapTest {
         JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
     
         // create the game map
-        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
         Province lusitania = provinceMap.getProvince("Lusitania");
         Province tarraconesis = provinceMap.getProvince("Tarraconesis");
         assert(provinceMap.getRequiredMovementPoints(lusitania, tarraconesis) == 4);
@@ -89,7 +89,7 @@ public class ProvinceMapTest {
         JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
     
         // create the game map
-        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
         assert(provinceMap.confirmIfProvincesConnected("Lusitania", "Tarraconesis"));
         assert(!provinceMap.confirmIfProvincesConnected("Lusitania", "Numedia"));
 
@@ -105,7 +105,7 @@ public class ProvinceMapTest {
         JSONObject provinceAdjacencyMatrix = new JSONObject(provinceAdjacencyContent);
     
         // create the game map
-        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+        ProvinceMap provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
         Province lusitania = provinceMap.getProvince("Lusitania");
         Province tarraconesis = provinceMap.getProvince("Tarraconesis");
 
@@ -114,7 +114,7 @@ public class ProvinceMapTest {
 
         provinceMap.saveGame(0);
 
-        provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix, "new");
+        provinceMap = new ProvinceMap(ownership, provinceAdjacencyMatrix);
         assert(tarraconesis.getUnitOfType("Swordsmen").getNumTroops() == 50);
 
         provinceMap.loadGame();

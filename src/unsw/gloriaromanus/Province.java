@@ -113,10 +113,6 @@ public class Province {
         units.add(newUnit);
     }
 
-    public void addNumTroops(int numTroops) {
-        this.numTroops += numTroops;
-    }
-
     public void lockDownProvince() {
         locked = true;
     }
