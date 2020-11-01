@@ -17,7 +17,7 @@
 <?import javafx.geometry.Insets?>
 <StackPane fx:controller="unsw.gloriaromanus.MenuController" xmlns:fx="http://javafx.com/fxml"
            stylesheets="/unsw/gloriaromanus/style.css">
-    <VBox StackPane.alignment="TOP_LEFT" spacing="10" maxWidth="250" styleClass="panel-region">
+    <VBox StackPane.alignment="CENTER" spacing="10" maxWidth="1000" styleClass="panel-region">
         <padding>
             <Insets topRightBottomLeft="10"/>
         </padding>
@@ -32,17 +32,19 @@
                 </fills>
             </Background>
         </background>
-        <Button text="Start Game" onAction="#clickedOfflineGameButton"/>
+        <VBox>
+            <TextArea fx:id="output_terminal" text="" editable="false"/>
+        </VBox>
+
         <VBox>
             <Label text="Faction1"/>
             <TextField fx:id="faction_1" text="" editable="true"/>
             <Label text="Faction2"/>
             <TextField fx:id="faction_2" text="" editable="true"/>
         </VBox>
-        <VBox>
-            <TextArea fx:id="output_terminal" text="" editable="false"/>
-        </VBox>
 
+        <Button text="Start Game" onAction="#clickedOfflineGameButton"/>
+        
     </VBox>
 
 </StackPane>

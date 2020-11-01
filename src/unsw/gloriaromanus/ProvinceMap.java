@@ -19,9 +19,8 @@ public class ProvinceMap extends Observer {
     private Map<String, Province> provinces;
     private Map<String, Faction> factions;
     private JSONObject provinceAdjacencyMatrix;
-    private int numCities = 0;
 
-    public ProvinceMap (JSONObject map, JSONObject provinceAdjacencyMatrix, String mode) throws IOException {
+    public ProvinceMap (JSONObject map, JSONObject provinceAdjacencyMatrix) throws IOException {
         // take the JSON map
         // each key will be a faction, create a Faction for each
         // each value will be a province, create a province, and add it to the faction
@@ -43,7 +42,6 @@ public class ProvinceMap extends Observer {
                 Province province = new Province(provinceName, faction);
                 faction.addProvince(province);
                 provinces.put(provinceName, province);
-                numCities += 1;
             }
         }
         this.provinceAdjacencyMatrix = provinceAdjacencyMatrix;

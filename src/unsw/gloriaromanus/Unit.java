@@ -80,7 +80,7 @@ public class Unit {
         attackType = unitStat.getString("attackType");
         defenseSkill = unitStat.getInt("defenseSkill");
         shieldDefense = unitStat.getInt("shieldDefense");
-        turnsToTrain = 1;
+        turnsToTrain = 1 * level;
         cost = unitStat.getInt("cost");
         level = unitStat.getInt("level");
     }
