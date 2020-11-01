@@ -59,7 +59,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import unsw.gloriaromanus.Commands.*;
-import unsw.gloriaromanus.infrastructure.*;
 
 public class GloriaRomanusController{
 
@@ -75,6 +74,8 @@ public class GloriaRomanusController{
   private TextArea province_info_terminal;
   @FXML
   private TextField turn_number;
+  @FXML
+  private TextField treasury;
 
   private ArcGISMap map;
 
@@ -85,6 +86,8 @@ public class GloriaRomanusController{
   // private String humanFaction;
 
   private Stage stage;      // the controllers stage;
+  //private ArrayList<Faction> factions;
+
 
   private Faction user1;
   private Faction user2;
@@ -92,6 +95,7 @@ public class GloriaRomanusController{
   private Faction humanFaction;
   private Faction enemyFaction;
 
+  private int gold;
   // provinceMap object
   private ProvinceMap provinceMap;
 
@@ -107,6 +111,8 @@ public class GloriaRomanusController{
   private TextField building_type;
   @FXML
   private TextField troop_field;          // use this field for the type of troops and number of troops
+  @FXML
+  private TextField tax_level;
 
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
@@ -152,8 +158,16 @@ public class GloriaRomanusController{
 
     printMessageToTerminal("Player1 : " + user1.getName());
     printMessageToTerminal("Player2: " + user2.getName());
+    // set the user factions
+    user1 = provinceMap.getFaction("Rome");
+    user2 = provinceMap.getFaction("Gaul");
+
+
+    printMessageToTerminal("Player1 : Rome");
+    printMessageToTerminal("Player2: Gaul");
     printMessageToTerminal("It is player1's turn");
     turn_number.setText(Integer.toString(turnCounter));
+    treasury.setText(Integer.toString(user1.getTreasury()));
     setFactions();
     initializeProvinceLayers();
   }
@@ -322,10 +336,45 @@ public class GloriaRomanusController{
     } else {
       printMessageToTerminal("Unable to add a building to a province you do not own!");
     }
-    
+    gold = province.getFaction().getTreasury();
+    treasury.setText(Integer.toString(gold));
     building_type.clear();
     resetSelections();
     addAllPointGraphics();
+  }
+  @FXML
+  public void clickedTaxationButton(ActionEvent e) throws IOException {
+    if (currentlySelectedProvince1 == null) {
+      printMessageToTerminal("Please select a province");
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphics
+      return;
+    }
+    String[] options = {"Low", "Medium", "High", "Very High"};
+    boolean validOption = false;
+    String s = tax_level.getText();
+    for (String string : options) {
+      if (string.equals(s)){
+        validOption = true;
+      }
+    }
+    if (!validOption) {
+      printMessageToTerminal("Invalid tax level request");
+      printMessageToTerminal("Please enter one of the following options: ");
+      printMessageToTerminal("Low|Medium|High|Very High");
+    } else {
+      Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+      province.setTaxLevel(s);
+      printMessageToTerminal("When you end your turn, this province shall be taxed");
+      printMessageToTerminal(province.getTaxRate()*100 + "% every year onwards");
+      printMessageToTerminal("The province will also have: ");
+      printMessageToTerminal(province.getGrowth() + " growth");
+      if (s.equals("Very High")) {
+        printMessageToTerminal("and -1 soldier morale");
+      }
+
+    }
+    return;
   }
 
   @FXML
@@ -363,6 +412,8 @@ public class GloriaRomanusController{
       printMessageToTerminal("Unable to recruit a troop in a province you do not own!");
     }
     troop_field.clear();
+    gold = province.getFaction().getTreasury();
+    treasury.setText(Integer.toString(gold));
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphics
 
@@ -640,16 +691,29 @@ public class GloriaRomanusController{
     for (Province province : lockedProvinces) {
       province.unlockProvince();
     }
+
+    provinceMap.update();
+    user1.collectTaxes();
+    user2.collectTaxes();
     lockedProvinces.clear();
     turnCounter++;
-    setTurnCounter(turnCounter);
     humanFaction = null;
     enemyFaction = null;
-    printMessageToTerminal("End turn - now it is player" + (turnCounter%2 + 1) + "'s turn");
+    printMessageToTerminal("The year is " + turnCounter + " - now it is player" + (turnCounter % 2 + 1) + "'s turn");
     setFactions();
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphic
+    if (turnCounter % 2 == 0) {
+      treasury.setText(Integer.toString(user2.getTreasury()));
+    } else {
+      treasury.setText(Integer.toString(user1.getTreasury()));
+    }
     turn_number.setText(Integer.toString(turnCounter));
+  }
+
+  
+  public void selectTaxLevel(Feature selectedProvince) {
+
   }
 
   public void displaySelection(Feature selectedProvince) {
@@ -659,6 +723,8 @@ public class GloriaRomanusController{
     Province province = provinceMap.getProvince((String)selectedProvince.getAttributes().get("name"));
     province_info_terminal.clear();
     province_info_terminal.appendText(province.getName() + "\n");
+    province_info_terminal.appendText("Tax Level: " + province.getTaxLevel() + "\n");
+    province_info_terminal.appendText("Wealth: " + province.getWealth() + "\n");
     province_info_terminal.appendText("Road level: " + province.getRoadLevel() + "\n");
     province_info_terminal.appendText("Units: \n");
     for (Unit unit: province.getUnits()) {
@@ -682,25 +748,14 @@ public class GloriaRomanusController{
     }
   }
 
-  //GIven our selected province, generate a unit object and see if we can add it
-  private void addSoldier(String soldier, int numTroops, Province province) throws IOException {
-    Unit newUnit = new Unit(soldier, numTroops);
-    province.addUnit(newUnit);
-  }
-
   private void setFactions() {
     if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
+      this.humanFaction = user1;
+      this.enemyFaction = user2;
     } else {
-      humanFaction = user2;
-      enemyFaction = user1;
+      this.humanFaction = user2;
+      this.enemyFaction = user1;
     }
-  }
-
-  public void setTurnCounter(int turnCounter) {
-    this.turnCounter = turnCounter;
-    provinceMap.update();
   }
 
   public void setStage(Stage stage) {

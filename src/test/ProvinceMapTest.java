@@ -30,7 +30,6 @@ import org.json.JSONObject;
 
 
 import unsw.gloriaromanus.*;
-import unsw.gloriaromanus.infrastructure.*;
 
 public class ProvinceMapTest {
     @Test
