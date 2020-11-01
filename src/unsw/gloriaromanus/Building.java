@@ -1,4 +1,4 @@
-package unsw.gloriaromanus.infrastructure;
+package unsw.gloriaromanus;
 
 //import java.lang.Math; 
 
@@ -29,7 +29,7 @@ import unsw.gloriaromanus.*;
 /**
  * A base class for every type of building we have
  */
-public abstract class Building {
+public class Building {
     private int cost;
     private int buildTime;
     private boolean built;
@@ -127,14 +127,13 @@ public abstract class Building {
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
         JSONArray buildingConfig = buildingType.getJSONArray("level");
         JSONObject buildStats = buildingConfig.getJSONObject(0);
-        int cost = buildStats.getInt("cost");
-        this.cost = (int) Math.round(cost*costMultiplier);
-        int buildTime = buildStats.getInt("buildTime");
+        this.cost = (int) Math.round(buildStats.getInt("cost")*costMultiplier);
+        this.buildTime = buildStats.getInt("buildTime") - buildTimeReduction;
         this.type = type;
-        this.buildTime = buildTime - buildTimeReduction;
         this.level = 0;
         this.built = false;
         this.province = province;
+
         status = "Being built";
     }
 
