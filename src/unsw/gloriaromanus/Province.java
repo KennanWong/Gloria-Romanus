@@ -252,34 +252,19 @@ public class Province {
         // check if any of our buildings will have a reduced cost time or build time
         double costReduction = faction.getBuildingCostReductionMultiplier();
         int buildTimeReduction = faction.getNumMaxLevelMines();
-
-        //create the building and add it to our lists of buildings
-        switch (building) {
-            case "Infantry":
-                Infantry i = new Infantry(costReduction, buildTimeReduction, this);
-                buildings.add(i);
-                return "Construction began sucessfully!";
-            case "Cavalry":
-                Cavalry c = new Cavalry(costReduction, buildTimeReduction, this);
-                buildings.add(c);
-                return "Construction began sucessfully!";
-            case "Artillery":
-                Artillery a = new Artillery(costReduction, buildTimeReduction, this);
-                buildings.add(a);
-                return "Construction began sucessfully!";
-            
-            case "Mine":
-                Mine m = new Mine(costReduction, buildTimeReduction, this);
-                buildings.add(m);
-                break;
-            case "Market":
-                Market ma = new Market(costReduction, buildTimeReduction, this);
-                buildings.add(ma);
-                break;
+        Building b = new Building(building, costReduction, buildTimeReduction, this);
+        
+        
+        if (b.getCost() > faction.getTreasury()) {
+            return "Not enough money!";
         }
 
-        String s = "Could not build building of type " + building + "!";
-        return s;
+        if ()
+            buildings.add(i);
+            faction.setTreasury(faction.getTreasury() - i.getCost());
+            }
+            return "Construction began sucessfully!";
+        }
     }
 
     private boolean underConstruction() {
