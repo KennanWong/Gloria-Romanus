@@ -49,6 +49,18 @@
         <Button text="Load Game" onAction="#clickedLoadButton"/>
         <Button text="Reset View" onAction="#clickedResetButton"/>
         <Button text="Set factions" onAction="#setFactions"/>
+        <HBox>
+            <Button text="Invade" onAction="#clickedInvadeButton"/>
+            <Button text="Move Troops" onAction="#clickedMoveButton"/>
+        </HBox>
+        <HBox>
+            <Button text="End turn" onAction="#clickedEndTurnButton"/>
+            <Button text="Save Game" onAction="#clickedSaveButton"/>
+        </HBox>
+        <HBox>
+            <Button text="Load Game" onAction="#clickedLoadButton"/>
+            <Button text="Reset View" onAction="#clickedResetButton"/>
+        </HBox>
         <VBox>
             <Label text="Output from interactions"/>
             <TextArea fx:id="output_terminal" text="" editable="false"/>
@@ -67,10 +79,21 @@
             <TextField fx:id="troop_field" text="" editable="true"/>
             <Button text="Request troops" onAction="#clickedRecruitTroopButton"/>
         </VBox>
+        <VBox>
+            <Label text="Taxation Levels"/>
+            <TextField fx:id="tax_level" text="" editable="true"/>
+            <Button text="Set taxes" onAction="#clickedTaxationButton"/>
+        </VBox>
         
     </VBox>
-
-    <VBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" maxHeight="30" styleClass="panel-region">
-        <TextField fx:id="turn_number" text="" editable="false"/>
-    </VBox>
+    <HBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" maxHeight="30" styleClass="panel-region">
+        <VBox>
+            <Label text="Year"/>
+            <TextField fx:id="turn_number" text="" editable="false"/>
+        </VBox>
+        <VBox>
+            <Label text="Treasury"/>
+            <TextField fx:id="treasury" text="" editable="false"/>
+        </VBox>
+    </HBox>
 </StackPane>

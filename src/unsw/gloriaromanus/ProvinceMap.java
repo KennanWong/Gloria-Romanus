@@ -61,6 +61,10 @@ public class ProvinceMap extends Observer {
         return provinces.get(name);
     }
 
+    public Map<String, Province> getProvinces() {
+        return provinces;
+    }
+
     public Faction getFaction(String name) {
         return factions.get(name);
     }
