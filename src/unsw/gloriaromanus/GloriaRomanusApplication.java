@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 
+import unsw.gloriaromanus.*;
+
 public class GloriaRomanusApplication extends Application {
 
   private Stage window;
@@ -25,7 +27,7 @@ public class GloriaRomanusApplication extends Application {
 
     // Set up main menu
     window = stage;
-
+    /*
     // set up the scene
     FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
     Parent root = loader.load();
@@ -35,6 +37,7 @@ public class GloriaRomanusApplication extends Application {
     // Label mainMenuMsg = new Label ("Welcome to Gloria Romanus!");
     Button startGame = new Button("Start Game");
     startGame.setOnAction(e-> window.setScene(game));
+    */
     
     FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("menu.fxml"));
     Parent menuRoot = menuLoader.load();
