@@ -198,6 +198,11 @@ public class Province {
         provinceJSON.put("units", unitsJSON);
         provinceJSON.put("roadLevel", roadLevel);
         provinceJSON.put("movementPointsReq", movementPointsReq);
+        provinceJSON.put("wealth", wealth);
+        provinceJSON.put("taxLevel", taxLevel);
+        provinceJSON.put("taxRate", taxRate);
+        provinceJSON.put("locked", locked);
+        provinceJSON.put("growth", growth);
         return provinceJSON;
     }
 
@@ -222,6 +227,11 @@ public class Province {
         // set the infrastructure of the units
         roadLevel = json.getString("roadLevel");
         movementPointsReq = json.getInt("movementPointsReq");
+        wealth = json.getInt("wealth");
+        taxLevel = json.getString("taxLevel");
+        taxRate = json.getDouble("taxRate");
+        locked = json.getBoolean("locked");
+        growth = json.getInt("growth");
     }
     //Functionality for buildings
 
@@ -291,6 +301,7 @@ public class Province {
         for (Unit unit : units) {
             unit.update();
         }
+        locked = false;
         growWealth();      
     }
 

@@ -524,32 +524,35 @@ public class GloriaRomanusController{
               if (features.size() > 1){
                 printMessageToTerminal("Have more than 1 element - you might have clicked on boundary!");
               }
-              else if (features.size() == 1){
+              else if (features.size() == 1) {
                 // note maybe best to track whether selected...
                 Feature f = features.get(0);
                 String provinceName = (String)f.getAttributes().get("name");
                 Province province = provinceMap.getProvince(provinceName);
-                if (selectionStep%2 == 0) {
-                  if (currentlySelectedProvince1 != null) {
-                    featureLayer.unselectFeature(currentlySelectedProvince1);
-                  }
+                if (currentlySelectedProvince1 == null) {
                   currentlySelectedProvince1 = f;
                   province_1.setText(province.getName());
                   displaySelection(currentlySelectedProvince1);
-                } else {
-                  if (currentlySelectedProvince2 != null) {
-                    featureLayer.unselectFeature(currentlySelectedProvince2);
-                  }
+                  featureLayer.selectFeature(f);         
+                } else if (currentlySelectedProvince2 == null) {
                   currentlySelectedProvince2 = f;
                   province_2.setText(province.getName());
-                  displaySelection(currentlySelectedProvince2);
+                  displaySelection(currentlySelectedProvince1);
+                  featureLayer.selectFeature(f);         
+                } else {
+                  if (provinceName.equals((String)currentlySelectedProvince1.getAttributes().get("name"))) {
+                    province_1.setText("");
+                    featureLayer.unselectFeature(currentlySelectedProvince1);
+                    currentlySelectedProvince1 = null;
+                  } else if (provinceName.equals((String)currentlySelectedProvince2.getAttributes().get("name"))) {
+                    province_2.setText("");
+                    featureLayer.unselectFeature(currentlySelectedProvince2);
+                    currentlySelectedProvince2 = null;
+                  }
                 }
-                selectionStep += 1;
-                featureLayer.selectFeature(f);                
               }
-
-              
             }
+                       
           } catch (InterruptedException | ExecutionException ex) {
             // ... must deal with checked exceptions thrown from the async identify
             // operation

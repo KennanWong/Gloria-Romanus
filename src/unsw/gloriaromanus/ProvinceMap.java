@@ -145,6 +145,7 @@ public class ProvinceMap extends Observer {
             }
             factionJSON.put("provinces", provincesJSON);
             factionJSON.put("user", faction.getUser());
+            factionJSON.put("treasury", faction.getTreasury());
             gameSaveJSON.put(factionName, factionJSON);
         }
         gameSaveJSON.put("turnCounter", turnCounter);
@@ -169,6 +170,7 @@ public class ProvinceMap extends Observer {
             JSONObject factionJSON = gameSaveJSON.getJSONObject(factionName);
             Faction faction = new Faction(factionName);
             faction.setUser(factionJSON.getInt("user"));
+            faction.setTreasury(factionJSON.getInt("treasury"));
             factions.put(factionName, faction);
             JSONObject provincesJSON = factionJSON.getJSONObject("provinces");
             for (String provinceName : provincesJSON.keySet()) {

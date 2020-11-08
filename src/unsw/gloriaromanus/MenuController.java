@@ -34,10 +34,13 @@ import unsw.gloriaromanus.*;
 
 public class MenuController {
     @FXML
-    private TextField faction_1;
-
+    private TextField player_1;
     @FXML
-    private TextField faction_2;
+    private Button faction_1_name;
+    @FXML
+    private Button faction_2_name;
+    @FXML
+    private TextField player_2;
     @FXML
     private TextArea output_terminal;
 
@@ -52,6 +55,9 @@ public class MenuController {
         for (String faction : ownership.keySet()) {
             factionNames.add(faction);
         }
+
+        faction_1_name.setText(factionNames.get(0));
+        faction_2_name.setText(factionNames.get(1));
         printMessageToTerminal("Here are the possible factions you are able to choose from: \n");
         JSONObject factionAssignmentJSON = new JSONObject();
         int playerCounter = 1;
@@ -60,10 +66,7 @@ public class MenuController {
             factionAssignmentJSON.put(factionName, playerCounter);
             playerCounter++;
         }
-
-        String factionAssignmentContent = factionAssignmentJSON.toString();
-        Path fileName = Path.of("src/unsw/gloriaromanus/faction_assignment.json");
-        Files.writeString(fileName, factionAssignmentContent);
+        printMessageToTerminal("\nPlayer 1 please choose a faction \n");
 
 
         printMessageToTerminal("\n");
@@ -73,42 +76,41 @@ public class MenuController {
 
     @FXML
     public void clickedOfflineGameButton(ActionEvent event) throws IOException {
-        if (faction_1.getText().length() < 1  && faction_2.getText().length() < 1) {
+        if (player_1.getText().length() < 1  && player_2.getText().length() < 1) {
             // Start game with default province assignment
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
-            Parent root = loader.load();
-            GloriaRomanusController controller = loader.getController();
-            Scene game = new Scene(root);
-            Stage stageTheEventSourceNodeBelongs = (Stage) ((Node)event.getSource()).getScene().getWindow();
-            stageTheEventSourceNodeBelongs.setScene(game);
-        } else {
-            if (factionNames.contains(faction_1.getText()) && factionNames.contains(faction_2.getText()) 
-                && !faction_1.getText().equals(faction_2.getText())) {
-                // Set the faction assignment
-                JSONObject factionAssignmentJSON = new JSONObject();
-                factionAssignmentJSON.put(faction_1.getText(), 1);
-                factionAssignmentJSON.put(faction_2.getText(), 2);
-                String factionAssignmentContent = factionAssignmentJSON.toString();
-                Path fileName = Path.of("src/unsw/gloriaromanus/faction_assignment.json");
-                Files.writeString(fileName, factionAssignmentContent);
+            printMessageToTerminal("Please select a faction before starting the game.\n");
+            return;
+        } 
+        // Set the faction assignment
+        JSONObject factionAssignmentJSON = new JSONObject();
+        factionAssignmentJSON.put(player_1.getText(), 1);
+        factionAssignmentJSON.put(player_2.getText(), 2);
+        String factionAssignmentContent = factionAssignmentJSON.toString();
+        Path fileName = Path.of("src/unsw/gloriaromanus/faction_assignment.json");
+        Files.writeString(fileName, factionAssignmentContent);
         
-                Node node = (Node) event.getSource();
-                Stage stage = (Stage) node.getScene().getWindow();
-                stage.close();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
-                Parent root = loader.load();
-                GloriaRomanusController controller = loader.getController();
-            
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-
-                stage.show();
-            } else {
-                printMessageToTerminal("Incorrect selection of factions!\n");
-            }
-        }
-
+        Node node = (Node) event.getSource();
+        Stage stage = (Stage) node.getScene().getWindow();
+        stage.close();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+        Parent root = loader.load();
+        GloriaRomanusController controller = loader.getController();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
         
+    }
+
+    @FXML
+    public void clickedFaction1(ActionEvent event) {
+        player_1.setText(faction_1_name.getText());
+        player_2.setText(faction_2_name.getText());
+    }
+
+    @FXML
+    public void clickedFaction2(ActionEvent event) {
+        player_1.setText(faction_2_name.getText());
+        player_2.setText(faction_1_name.getText());
     }
 
 
