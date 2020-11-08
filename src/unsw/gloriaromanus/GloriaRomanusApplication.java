@@ -27,11 +27,12 @@ public class GloriaRomanusApplication extends Application {
 
     // Set up main menu
     window = stage;
-    /*
-    // set up the scene
+    
+    // Set up the controller
     FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
     Parent root = loader.load();
     controller = loader.getController();
+    /*
     Scene game = new Scene(root);
 
     // Label mainMenuMsg = new Label ("Welcome to Gloria Romanus!");

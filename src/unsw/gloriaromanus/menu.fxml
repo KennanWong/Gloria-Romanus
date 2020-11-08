@@ -33,14 +33,24 @@
             </Background>
         </background>
         <VBox>
-            <TextArea fx:id="output_terminal" text="" editable="false"/>
+            <TextArea StackPane.alignment = "CENTER" fx:id="output_terminal" text="" editable="false"/>
         </VBox>
 
         <VBox>
-            <Label text="Faction1"/>
-            <TextField fx:id="faction_1" text="" editable="true"/>
-            <Label text="Faction2"/>
-            <TextField fx:id="faction_2" text="" editable="true"/>
+            <HBox >
+                <Button fx:id="faction_1_name" text = "" onAction = "#clickedFaction1" />
+                <Button fx:id="faction_2_name" text = "" onAction = "#clickedFaction2" />
+            </HBox>
+            <HBox>
+                <VBox>
+                    <Label text="Player 1"/>
+                    <TextField fx:id="player_1" text="" editable="False"/>
+                </VBox>
+                <VBox>
+                    <Label text="Player 2"/>
+                    <TextField fx:id="player_2" text="" editable="False"/>
+                </VBox>
+            </HBox>
         </VBox>
 
         <Button text="Start Game" onAction="#clickedOfflineGameButton"/>

@@ -99,8 +99,6 @@ public class Invade implements Strategy {
             } 
             if (humanStrength == 0) {
                 // enemy won
-                humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
-                enemyProvince.moveUnits(humanProvince);
                 return "Lost battle!";
                 
             }
@@ -137,8 +135,6 @@ public class Invade implements Strategy {
             } 
             if (humanStrength == 0) {
                 // enemy won
-                humanProvince.changeProvinceOwnership(enemyProvince.getFaction());
-                enemyProvince.moveUnits(humanProvince); 
                 return "Lost battle";
             }
 
