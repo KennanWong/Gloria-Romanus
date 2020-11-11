@@ -103,7 +103,6 @@ public class Province {
     }
 
     public void addUnit(Unit newUnit) {
-        newUnit.setTurnsToTrain(0);
         for (Unit unit: units) {
             if (unit.getType().equals(newUnit.getType())) {
                 unit.setNumTroops(unit.getNumTroops() + newUnit.getNumTroops());
@@ -257,6 +256,16 @@ public class Province {
         // check if any of our buildings will have a reduced cost time or build time
         double costReduction = faction.getBuildingCostReductionMultiplier();
         int buildTimeReduction = faction.getNumMaxLevelMines();
+
+        // Check if we have been given a valid building type
+        String buildingConfigurationContent = Files
+                .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
+        JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
+        if (!buildingConfiguration.keySet().contains(building)){
+            return "Invalid building type";
+        }
+
+
         Building b = new Building(building, costReduction, buildTimeReduction, this);
         
         
@@ -281,7 +290,7 @@ public class Province {
         return false;
     }
 
-    private boolean buildingPresent(String building) {
+    public boolean buildingPresent(String building) {
         boolean flag = false;
         for (Building b : getBuildings()) {
             if (b.getType().equals(building)) {
@@ -360,14 +369,9 @@ public class Province {
                 break;
             }
         }
-
-        if (buildingAvailable == null) {
-            String s = "You don't have the right building to train this troop!";
-            return s;
-        }
-
         //add the troop and substract the money
         // need to account for soldier training time
+        newUnit.setTurnsToTrain();
         buildingAvailable.trainingUnit(newUnit);
         faction.setTreasury(faction.getTreasury() - newUnit.getCost()*newUnit.getNumTroops());
 

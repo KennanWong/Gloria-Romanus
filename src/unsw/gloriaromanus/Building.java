@@ -47,14 +47,13 @@ public class Building {
             // If the building is built and if there are any units that have finished
             // training
             if (unitBeingTrained != null) {
-                if ((unitBeingTrained.getTurnsToTrain() - 1) < 0) {
+                if (unitBeingTrained.getTurnsToTrain() <= 0) {
                     // unit has finished training
                     province.addUnit(unitBeingTrained);
                     status = "Idle";
                     unitBeingTrained = null;
                 } else {
-                    int turnsLeft = unitBeingTrained.getTurnsToTrain() - 1;
-                    unitBeingTrained.setTurnsToTrain(turnsLeft);
+                    unitBeingTrained.update();
                 }
             }
             return;
@@ -124,6 +123,7 @@ public class Building {
         String buildingConfigurationContent = Files
                 .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
         JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
+
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
         JSONArray buildingConfig = buildingType.getJSONArray("level");
         JSONObject buildStats = buildingConfig.getJSONObject(0);
