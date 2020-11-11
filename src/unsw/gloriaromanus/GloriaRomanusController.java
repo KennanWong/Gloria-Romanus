@@ -22,6 +22,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -99,10 +100,6 @@ public class GloriaRomanusController{
   // provinceMap object
   private ProvinceMap provinceMap;
 
-  private Feature currentlySelectedHumanProvince;
-  private Feature currentlySelectedEnemyProvince;
-
-  private String test;
   @FXML
   private TextField province_1;
   @FXML
@@ -114,12 +111,18 @@ public class GloriaRomanusController{
   @FXML
   private TextField tax_level;
 
+  @FXML
+  private ComboBox soldier_options;       // combobox to show all possible soldiers that can be recruited
+  @FXML
+  private ComboBox number_soldiers;       // combobox to show number of soldiers that can be recruited
+  @FXML
+  private ComboBox building_options;      // combobox to show possible buildigns that can be built
+
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
 
   private FeatureLayer featureLayer_provinces;
 
-  private int selectionStep = 0;  // to keep track of selection
   private int turnCounter = 0;    // to keep track of turn counter
 
   private boolean gameFinished = false;
@@ -162,6 +165,7 @@ public class GloriaRomanusController{
     treasury.setText(Integer.toString(user1.getTreasury()));
     setFactions();
     initializeProvinceLayers();
+    
   }
 
 
@@ -176,7 +180,6 @@ public class GloriaRomanusController{
       if (humanProvince.getFaction() != humanFaction || enemyProvince.getFaction() == humanFaction){
         printMessageToTerminal("Incorrect selection of provinces!\n If you would like to invade a province,\n select your province for Province 1 and \n select an enemy province for Province 2");
         resetSelections();  // reset selections in UI
-        addAllPointGraphics(); // reset graphics
         return;
       }
       if (provinceMap.confirmIfProvincesConnected(humanProvince.getName(), enemyProvince.getName())) {
@@ -185,9 +188,11 @@ public class GloriaRomanusController{
         printMessageToTerminal(newCommand.executeStrategy(humanProvince, enemyProvince));
       } else {
         printMessageToTerminal("Provinces not adjacent, cannot invade!");
+        resetSelections();  // reset selections in UI
+        return;
       }
-      resetSelections();
-      addAllPointGraphics();
+      resetSelections();  // reset selections in UI
+      addAllPointGraphics(); // reset graphic
       
     }
   }
@@ -201,7 +206,6 @@ public class GloriaRomanusController{
     if (currentlySelectedProvince1 == null || currentlySelectedProvince2 == null) {
       printMessageToTerminal("Please select two provinces");
       resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
       return;
     }
     Province moveFrom = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
@@ -213,14 +217,12 @@ public class GloriaRomanusController{
       printMessageToTerminal("province2 faction - " + moveTo.getFaction().getName());
       printMessageToTerminal("humanFaction - " + humanFaction.getName());
       resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
       return;
     }
 
     if (moveFrom.isLocked()) {
       printMessageToTerminal("Cannot move units from a province invaded in current turn");
       resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
       return;
     }
 
@@ -243,8 +245,8 @@ public class GloriaRomanusController{
     Command newCommand = new Command();
     newCommand.setStrategy(new Move());
     printMessageToTerminal(newCommand.executeStrategy(moveFrom, moveTo));
-    addAllPointGraphics(); 
     resetSelections();
+    addAllPointGraphics();
   }
 
   @FXML
@@ -280,6 +282,7 @@ public class GloriaRomanusController{
 
   @FXML
   public void clickedResetButton(ActionEvent e) throws IOException {
+    clearDropDowns();
     addAllPointGraphics(); // reset graphics
     resetSelections();
   }
@@ -298,17 +301,22 @@ public class GloriaRomanusController{
       addAllPointGraphics(); // reset graphics
       return;
     }
-    String buildingType = building_type.getText();
+    
     setFactions();
     Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
-    if (province.getFaction() == humanFaction) {
-      printMessageToTerminal(province.addBuilding(buildingType));
-    } else {
-      printMessageToTerminal("Unable to add a building to a province you do not own!");
+    String buildingType = (String) building_options.getValue();
+    if (province.getFaction() != humanFaction) {
+      printMessageToTerminal("Unable to add a building in a province you do not own!");
+      return;
     }
+    if (buildingType == null) {
+      printMessageToTerminal("Please select a building type to build");
+      return;
+    }
+    printMessageToTerminal(province.addBuilding(buildingType));
     gold = province.getFaction().getTreasury();
     treasury.setText(Integer.toString(gold));
-    building_type.clear();
+    clearDropDowns();
     resetSelections();
     addAllPointGraphics();
   }
@@ -362,28 +370,22 @@ public class GloriaRomanusController{
       humanFaction = user2;
       enemyFaction = user1;
     }
-    String[] troopRequest = troop_field.getText().split(" ");
-
-    if (troopRequest.length != 2) {
-      printMessageToTerminal("Invalid troop request");
-      printMessageToTerminal("Please make a troop request as follows: ");
-      printMessageToTerminal("(int)numTroops, (String)troopType");
+    
+    if (!(soldier_options.getValue() != null && number_soldiers.getValue() != null)) {
+      printMessageToTerminal("Please select one soldier type and the number");
+      printMessageToTerminal("of soldiers you would like to recruit");
       return;
-    }
+    } 
 
-    printMessageToTerminal(troopRequest[0]);
-    int numTroops = Integer.parseInt(troopRequest[0]);
-    String troopType = troopRequest[1];
+    int numTroops = Integer.parseInt((String) number_soldiers.getValue());
+    String troopType = (String) soldier_options.getValue();
 
     Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
-    if (province.getFaction() == humanFaction) {
-      printMessageToTerminal(province.recruitSoldier(troopType, numTroops));
-    } else {
-      printMessageToTerminal("Unable to recruit a troop in a province you do not own!");
-    }
-    troop_field.clear();
+    printMessageToTerminal(province.recruitSoldier(troopType, numTroops));
+
     gold = province.getFaction().getTreasury();
     treasury.setText(Integer.toString(gold));
+    clearDropDowns();
     resetSelections();  // reset selections in UI
     addAllPointGraphics(); // reset graphics
 
@@ -534,21 +536,20 @@ public class GloriaRomanusController{
                   province_1.setText(province.getName());
                   displaySelection(currentlySelectedProvince1);
                   featureLayer.selectFeature(f);         
+                } else if (provinceName.equals((String)currentlySelectedProvince1.getAttributes().get("name"))) {
+                  province_1.setText("");
+                  featureLayer.unselectFeature(currentlySelectedProvince1);
+                  currentlySelectedProvince1 = null;
                 } else if (currentlySelectedProvince2 == null) {
                   currentlySelectedProvince2 = f;
                   province_2.setText(province.getName());
-                  displaySelection(currentlySelectedProvince1);
+                  displaySelection(currentlySelectedProvince2);
                   featureLayer.selectFeature(f);         
-                } else {
-                  if (provinceName.equals((String)currentlySelectedProvince1.getAttributes().get("name"))) {
-                    province_1.setText("");
-                    featureLayer.unselectFeature(currentlySelectedProvince1);
-                    currentlySelectedProvince1 = null;
-                  } else if (provinceName.equals((String)currentlySelectedProvince2.getAttributes().get("name"))) {
+                } else if (provinceName.equals((String)currentlySelectedProvince2.getAttributes().get("name"))) {
                     province_2.setText("");
                     featureLayer.unselectFeature(currentlySelectedProvince2);
                     currentlySelectedProvince2 = null;
-                  }
+                  
                 }
               }
             }
@@ -608,21 +609,18 @@ public class GloriaRomanusController{
   private void resetSelections(){
     if (currentlySelectedProvince1 != null && currentlySelectedProvince2 != null) {
       featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedProvince1, currentlySelectedProvince2));
-      selectionStep = 0;
       currentlySelectedProvince1 = null;
       currentlySelectedProvince2 = null;
       province_1.setText("");
       province_2.setText("");
     } else if (currentlySelectedProvince1 != null) {
       featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedProvince1));
-      selectionStep = 0;
       currentlySelectedProvince1 = null;
       currentlySelectedProvince2 = null;
       province_1.setText("");
       province_2.setText("");
     } else if (currentlySelectedProvince2 != null){
       featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedProvince2));
-      selectionStep = 0;
       currentlySelectedProvince1 = null;
       currentlySelectedProvince2 = null;
       province_1.setText("");
@@ -658,8 +656,11 @@ public class GloriaRomanusController{
       Faction winningFaction = provinceMap.checkWinner();
       printMessageToTerminal("GAME END\n" +"Winner: " + winningFaction.getName());
       gameFinished = true;
-
     }
+
+    // Clear the dropDowns
+    clearDropDowns();
+
     //Update all the provinces
     for (Province province : lockedProvinces) {
       province.unlockProvince();
@@ -690,10 +691,20 @@ public class GloriaRomanusController{
   }
 
   public void displaySelection(Feature selectedProvince) {
+    clearDropDowns();
     if (selectedProvince == null) {
       return;
     }
     Province province = provinceMap.getProvince((String)selectedProvince.getAttributes().get("name"));
+    if (province.getFaction() == humanFaction) {
+      try {
+        loadSoldierDropDown(province);
+        loadBuildingDropDown(province);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    
     province_info_terminal.clear();
     province_info_terminal.appendText(province.getName() + "\n");
     province_info_terminal.appendText("Tax Level: " + province.getTaxLevel() + "\n");
@@ -730,5 +741,71 @@ public class GloriaRomanusController{
       this.enemyFaction = user1;
     }
   }
+
+  // Load up the possible soldiers that can be recurited
+  private void loadSoldierDropDown(Province province) throws IOException {
+    soldier_options.getItems().clear();
+    number_soldiers.getItems().clear();
+    number_soldiers.setVisibleRowCount(5);
+    soldier_options.setVisibleRowCount(5);
+    String unitConfigurationContent = Files.readString(Paths.get("src/unsw/gloriaromanus/configFiles/unit_configuration.json"));
+    JSONObject unitConfiguration = new JSONObject(unitConfigurationContent);
+    List<String> recruitableSoldierTypes = new ArrayList<>();
+    if (province.getBuildings().size() > 0) {
+      for (Building building : province.getBuildings()) {
+        // check the buildings type and bring up all the possible units that can be recruited, taking into account
+        // costs as well as if the building is training a soldier
+        if (!building.getStatus().equals("Idle")) {
+          continue;
+        }
+        
+        for (String unitKey : unitConfiguration.keySet()) {
+          JSONObject unit = unitConfiguration.getJSONObject(unitKey);
+          if (unit.getString("category").equals(building.getType())) {
+            recruitableSoldierTypes.add(unitKey);
+          }
+        }
+      }
+      soldier_options.getItems().addAll(recruitableSoldierTypes);
+
+      soldier_options.setOnAction(e -> {
+        String chosenUnit = (String) soldier_options.getValue();
+        if (chosenUnit == null) {
+          return;
+        }
+        JSONObject requestedUnitJSON = unitConfiguration.getJSONObject(chosenUnit);
+        number_soldiers.getItems().clear();
+        number_soldiers.setVisibleRowCount(5);
+        int numRequestible = humanFaction.getTreasury()/requestedUnitJSON.getInt("cost");
+        for (int i = 1; i <= numRequestible; i++) {
+          number_soldiers.getItems().add(Integer.toString(i));
+        }
+      });
+  
+    }
+  }
+
+  private void loadBuildingDropDown(Province province) throws IOException {
+    building_options.getItems().clear();
+    building_options.setVisibleRowCount(5);
+    String buildingConfigurationContent = Files
+                .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
+    JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
+    for (String buildingType : buildingConfiguration.keySet()) {
+      JSONObject buildingJSON = buildingConfiguration.getJSONObject(buildingType).getJSONArray("level").getJSONObject(0);
+      if (!province.buildingPresent(buildingType) && humanFaction.getTreasury() >= buildingJSON.getInt("cost")) {
+        building_options.getItems().add(buildingType);
+        printMessageToTerminal("Can build: "+ buildingType);
+      }
+    }
+  }
+
+  private void clearDropDowns() {
+    soldier_options.getItems().clear();
+    number_soldiers.getItems().clear();
+    building_options.getItems().clear();
+  }
+
+
 
 }

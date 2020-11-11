@@ -66,12 +66,15 @@
         </VBox>
         <VBox>
             <Label text="Building Type"/>
-            <TextField fx:id="building_type" text="" editable="true"/>
+            <ComboBox fx:id="building_options"/>
             <Button text="Add Building" onAction="#clickedAddBuildingButton"/>
         </VBox>
         <VBox>
-            <Label text="Recruit Request"/>
-            <TextField fx:id="troop_field" text="" editable="true"/>
+            <Label text="Recruit Soldiers"/>
+            <HBox>
+                <ComboBox fx:id="soldier_options"/>
+                <ComboBox fx:id="number_soldiers"/>
+            </HBox>
             <Button text="Request troops" onAction="#clickedRecruitTroopButton"/>
         </VBox>
         <VBox>

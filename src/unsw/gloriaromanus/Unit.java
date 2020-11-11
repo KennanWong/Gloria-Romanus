@@ -43,6 +43,8 @@ public class Unit {
     private int cost;           // cost of the troop type
     private int level;          // building level that is required to produce this troop
     private int turnsToTrain;   // number of turns required to train this troop RN defaults to 1;
+    private boolean broken;     // flag to determine if a unit is "broken" in battle
+    private boolean routed;     // flag to determine if a unit is "routed" in battle
     /**
      * Constructor for a unit class. Provide the typeOfTroop and the number of those troops, and it will pull from a configuration
      * file to fill in the appropriate statistics
@@ -80,9 +82,10 @@ public class Unit {
         attackType = unitStat.getString("attackType");
         defenseSkill = unitStat.getInt("defenseSkill");
         shieldDefense = unitStat.getInt("shieldDefense");
-        turnsToTrain = 1 * level;
+        turnsToTrain = 0;
         cost = unitStat.getInt("cost");
         level = unitStat.getInt("level");
+        broken = false;
     }
 
     public int getNumTroops(){
@@ -109,8 +112,8 @@ public class Unit {
         return turnsToTrain;
     }
 
-    public void setTurnsToTrain(int turnsToTrain) {
-        this.turnsToTrain = turnsToTrain;
+    public void setTurnsToTrain() {
+        this.turnsToTrain = level + 1;
     }
 
     public void setNumTroops(int numTroops) {
@@ -136,11 +139,45 @@ public class Unit {
         return level;
     }
 
+    public String getAttackType() {
+        return attackType;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getShieldDefense() {
+        return shieldDefense;
+    }
+
+    public int getArmour() {
+        return armour;
+    }
+
+
     public void update() {
         if (getTurnsToTrain() != 0) {
             turnsToTrain--;
         }
     }
+
+    public boolean isBroken() {
+        return broken;
+    }
+
+    public void setBroken(boolean broken) {
+        this.broken = broken;
+    }
+
+    public boolean isRouted() {
+        return routed;
+    }
+
+    public void setRouted(boolean routed) {
+        this.routed = routed;
+    }
+
 
     public JSONObject getUnitAsJson() {
         JSONObject unitJSON = new JSONObject();
@@ -158,6 +195,7 @@ public class Unit {
         unitJSON.put("movementPoints", movementPoints);
         unitJSON.put("cost", cost);
         unitJSON.put("level", level);
+        unitJSON.put("turnsToTrain", turnsToTrain);
         return unitJSON;
 
     }
@@ -175,5 +213,6 @@ public class Unit {
         movementPoints = json.getInt("movementPoints");
         cost = json.getInt("cost");
         level = json.getInt("level");
+        turnsToTrain = json.getInt("turnsToTrain");
     }
 }
