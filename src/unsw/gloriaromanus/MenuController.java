@@ -48,6 +48,7 @@ public class MenuController {
 
     @FXML
     private void initialize() throws JsonParseException, JsonMappingException, IOException {
+        output_terminal.setStyle("-fx-text-alignment: center");
         printMessageToTerminal("Welcome to Gloria Romanus!\n");
         factionNames = new ArrayList<>();
         String intialOwnershipContent = Files.readString(Paths.get("src/unsw/gloriaromanus/initial_province_ownership.json"));

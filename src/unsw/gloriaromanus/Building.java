@@ -35,7 +35,7 @@ public class Building {
     private boolean built;
     private int level;
     private String type;
-    private String status; // Possible statuses: Being built, Training, Idle
+    private String status; // Possible statuses: Being built, Training, Idle, broken
     private Province province; // the province the building is from
     private Unit unitBeingTrained; // the unit being trained in this building
     private JSONArray buildingConfig;
@@ -190,4 +190,28 @@ public class Building {
         this.bonus = bonus;
     }
 
+    public boolean is(String status) {
+        if (this.status.equals(status)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * Method to set the status of a building
+     * "Being built"   "Idle"    "Trainig"    "Broken"
+     * @param status
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    /**
+     * Removes the unit being trained
+     */
+    public void stopTrainingUnit() {
+        unitBeingTrained = null;
+        this.status = "Idle";
+    }
 }

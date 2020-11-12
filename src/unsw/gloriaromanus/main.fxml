@@ -48,6 +48,7 @@
             <Button text="Invade" onAction="#clickedInvadeButton"/>
             <Button text="Move Troops" onAction="#clickedMoveButton"/>
         </HBox>
+        <Button text="Raid Province" onAction="#clickedRaidButton"/>
         <HBox>
             <Button text="End turn" onAction="#clickedEndTurnButton"/>
             <Button text="Reset View" onAction="#clickedResetButton"/>

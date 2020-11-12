@@ -207,6 +207,11 @@ public class Invade implements Strategy {
                     routedUnit.setBroken(false);
                     humanUnits.add(routedUnit);
                 }
+                for (Building building : enemyProvince.getBuildings()) {
+                    if (building.is("Training")) {
+                        building.stopTrainingUnit();
+                    }
+                }
                 enemyProvince.changeProvinceOwnership(humanFaction);
                 humanProvince.moveUnits(enemyProvince);
                 enemyProvince.lockDownProvince();
@@ -229,111 +234,6 @@ public class Invade implements Strategy {
 
             }
             
-            // 1. Check chance of range/melee engagement
-
-
-            
-            /*
-            double chanceOfWinning = humanStrength/(humanStrength + enemyStrength);
-            Random r = new Random();
-            double chance = r.nextDouble();
-
-            double winningStength = 0;
-            double losingStrength = 0;
-            List <Unit> winningUnits;
-            List <Unit> losingUnits;
-            if (chance < chanceOfWinning) {
-                // human won
-                winningStength = humanStrength;
-                losingStrength = enemyStrength;
-                winningUnits = humanUnits;
-                losingUnits = enemyUnits;
-            } else {
-                // enemy won
-                winningStength = enemyStrength;
-                losingStrength = humanStrength;
-                winningUnits = enemyUnits;
-                losingUnits = humanUnits;
-            }
-
-            
-            double percentageOfLoser = 0.0;
-
-            while (percentageOfLoser == 0.0) {
-                double tmp = r.nextDouble();
-                if (tmp >= (winningStength)/(winningStength + losingStrength)) {
-                    percentageOfLoser = tmp;
-                }
-            }
-
-            for (Unit unit: losingUnits) {
-                unit.setNumTroops((int)((double)unit.getNumTroops()*(1-percentageOfLoser)));
-            }
-
-            humanStrength = 0;
-            for (Unit unit: humanUnits) {
-                humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
-            }
-
-            enemyStrength = 0;
-            for (Unit unit: enemyUnits) {
-                enemyStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
-            }
-            if (enemyStrength == 0) {
-                // human won
-                enemyProvince.changeProvinceOwnership(humanFaction);
-                humanProvince.moveUnits(enemyProvince);
-                enemyProvince.lockDownProvince();
-                return "Won battle!";
-            } 
-            if (humanStrength == 0) {
-                // enemy won
-                return "Lost battle!";
-                
-            }
-
-            double percentageOfWinner = 0.0;
-
-            while (percentageOfWinner == 0.0) {
-                double tmp = r.nextDouble();
-                if (tmp <= (losingStrength)/(winningStength + losingStrength)) {
-                percentageOfWinner = tmp;
-                }
-            }
-
-            for (Unit unit: winningUnits) {
-                unit.setNumTroops((int)((double) unit.getNumTroops()*(1-percentageOfWinner)));
-                
-            }
-
-            humanStrength = 0;
-            for (Unit unit: humanUnits) {
-                humanStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
-            }
-
-            enemyStrength = 0;
-            for (Unit unit: enemyUnits) {
-                enemyStrength += (unit.getNumTroops()*unit.getAttack()*unit.getDefenseSkill());
-            }
-            if (enemyStrength == 0) {
-                // human won
-                enemyProvince.changeProvinceOwnership(humanFaction);
-                humanProvince.moveUnits(enemyProvince);
-                enemyProvince.lockDownProvince();
-                return "Won battle!";
-            } 
-            if (humanStrength == 0) {
-                // enemy won
-                return "Lost battle";
-            }
-
-            numEncounters += 1; 
-            // recalculate strengths
-            
-            if (numEncounters >= 200) {
-                return "Drew battle!";
-            }
-            */
         } 
         return "Drew battle!";
     }
@@ -377,6 +277,5 @@ public class Invade implements Strategy {
         
         return casualties;
     }
-    
     
 }

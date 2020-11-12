@@ -250,6 +250,23 @@ public class GloriaRomanusController{
   }
 
   @FXML
+  public void clickedRaidButton(ActionEvent e) throws IOException {
+    if (currentlySelectedProvince1 == null || currentlySelectedProvince2 == null) {
+      printMessageToTerminal("Please select two provinces");
+      resetSelections();  // reset selections in UI
+      return;
+    }
+    Province engagingProvince = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
+    Province defendingProvince = provinceMap.getProvince((String)currentlySelectedProvince2.getAttributes().get("name"));
+    Command newCommand = new Command();
+    newCommand.setStrategy(new Raid(humanFaction, enemyFaction));
+    printMessageToTerminal(newCommand.executeStrategy(engagingProvince, defendingProvince));
+    resetSelections();
+    addAllPointGraphics();
+    return ;
+  }
+
+  @FXML
   public void clickedSaveButton(ActionEvent e) throws IOException {
     provinceMap.saveGame(turnCounter);
     printMessageToTerminal("Saved Game!");
@@ -291,6 +308,8 @@ public class GloriaRomanusController{
   public void clickedEndTurnButton(ActionEvent e) throws IOException {
     endTurn();
   }
+
+  
 
 
   @FXML 
@@ -723,11 +742,15 @@ public class GloriaRomanusController{
                                             building.getTurnAvailable() + " turns\n");
           break;
         case "Training":
-          province_info_terminal.appendText(building.getStatus() +" soldiers.\n Available in "+ building.getUnitBeingTrained().getTurnsToTrain() + "\n");
+          province_info_terminal.appendText(building.getStatus() +" soldiers. Available in "+ building.getUnitBeingTrained().getTurnsToTrain() + "\n");
           break;
         case "Idle" :
           province_info_terminal.appendText(building.getStatus() + "\n");
           break;
+        case "Broken" :{
+          province_info_terminal.appendText(building.getStatus() + "\n");
+          break;
+        }
       }
     }
   }
@@ -755,7 +778,7 @@ public class GloriaRomanusController{
       for (Building building : province.getBuildings()) {
         // check the buildings type and bring up all the possible units that can be recruited, taking into account
         // costs as well as if the building is training a soldier
-        if (!building.getStatus().equals("Idle")) {
+        if (!building.is("Idle")) {
           continue;
         }
         
@@ -795,7 +818,6 @@ public class GloriaRomanusController{
       JSONObject buildingJSON = buildingConfiguration.getJSONObject(buildingType).getJSONArray("level").getJSONObject(0);
       if (!province.buildingPresent(buildingType) && humanFaction.getTreasury() >= buildingJSON.getInt("cost")) {
         building_options.getItems().add(buildingType);
-        printMessageToTerminal("Can build: "+ buildingType);
       }
     }
   }
