@@ -356,13 +356,8 @@ public class Province {
         //check if we have the right building and building level to create this troop
         Building buildingAvailable = null;
         for (Building building : buildings) {
-            /*
-            if (building.getType() == unit.getCategory() && building.getLevel() == unit.getLevel()) {
-                buildingAvailable = true;
-            }
-            */
             if (building.getType().equals(newUnit.getCategory()) && building.isBuilt()) {
-                if (building.getStatus().equals("Training")) {
+                if (building.is("Training")) {
                     return "Currently training soldiers";
                 }
                 buildingAvailable = building;
