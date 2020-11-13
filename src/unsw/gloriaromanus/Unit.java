@@ -112,8 +112,8 @@ public class Unit {
         return turnsToTrain;
     }
 
-    public void setTurnsToTrain() {
-        this.turnsToTrain = level + 1;
+    public void setTurnsToTrain(Building building) {
+        this.turnsToTrain = (int) ((double)(level*numTroops)/((double)((building.getLevel() + 1)*(building.getLevel())+ 1)) + 1);
     }
 
     public void setNumTroops(int numTroops) {

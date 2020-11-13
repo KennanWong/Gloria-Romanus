@@ -60,28 +60,30 @@ public class Building {
         } else {
             buildTime -= 1;
         }
-        if (buildTime == 0) {
+        if (buildTime <= 0) {
             built = true;
             status = "Idle";
         }
 
     }
 
-    public JSONObject checkUpgrade() throws IOException {
+    public JSONObject checkUpgrade() {
         // return the cost and buildtime of the next building level
         JSONObject j = buildingConfig.getJSONObject(this.level + 1);
 
         return j;
     }
 
-    public void upgrade() {
+    public String upgrade() {
         // actually upgrade the building to a higher level
-        if (level < 4) {
-            level++;
-            built = false;
-            buildTime = buildingConfig.getJSONObject(level).getInt("buildTime");
-        }
-        
+        built = false;
+        buildTime = checkUpgrade().getInt("buildTime");
+        cost = checkUpgrade().getInt("cost");
+        status = "Being built";
+        Faction faction = province.getFaction();
+        faction.setTreasury(faction.getTreasury() - cost);
+        level++;
+        return "Upgrading building. Available in " + buildTime + " turns.";
         
     }
 
@@ -119,6 +121,18 @@ public class Building {
         return buildTime;
     }
 
+    public Province getProvince() {
+        return province;
+    }
+
+    public void setBuilt(boolean built) {
+        this.built = built;
+    }
+
+    public JSONArray getBuildingConfig() {
+        return buildingConfig;
+    }
+
     public Building(String type, double costMultiplier, int buildTimeReduction, Province province) throws IOException {
         String buildingConfigurationContent = Files
                 .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
@@ -127,6 +141,7 @@ public class Building {
         JSONObject buildingType = buildingConfiguration.getJSONObject(type);
         JSONArray buildingConfig = buildingType.getJSONArray("level");
         JSONObject buildStats = buildingConfig.getJSONObject(0);
+        this.buildingConfig = buildingConfig;
         this.cost = (int) Math.round(buildStats.getInt("cost")*costMultiplier);
         this.buildTime = buildStats.getInt("buildTime") - buildTimeReduction;
         this.type = type;
@@ -213,5 +228,22 @@ public class Building {
     public void stopTrainingUnit() {
         unitBeingTrained = null;
         this.status = "Idle";
+    }
+
+
+    /**
+     * Repair a given building at 30% of the original cost + tax
+     * @return
+     */
+    public String repair() {
+        Faction faction = province.getFaction();
+        int repairCost = (int) ((double)this.cost * (0.3 + province.getTaxRate()));
+        if (faction.getTreasury() < repairCost) {
+            return "Not enough money to repair building.";
+        } else {
+            faction.setTreasury(faction.getTreasury() - repairCost);
+            status = "Idle";
+            return "Building has been repaired!";
+        }
     }
 }
