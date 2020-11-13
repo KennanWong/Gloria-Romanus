@@ -19,15 +19,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
@@ -57,11 +61,12 @@ import org.geojson.FeatureCollection;
 import org.geojson.LngLatAlt;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import unsw.gloriaromanus.Commands.*;
 
-public class GloriaRomanusController{
+public class GloriaRomanusController {
 
   @FXML
   private MapView mapView;
@@ -86,9 +91,8 @@ public class GloriaRomanusController{
 
   // private String humanFaction;
 
-  private Stage stage;      // the controllers stage;
-  //private ArrayList<Faction> factions;
-
+  private Stage stage; // the controllers stage;
+  // private ArrayList<Faction> factions;
 
   private Faction user1;
   private Faction user2;
@@ -107,16 +111,21 @@ public class GloriaRomanusController{
   @FXML
   private TextField building_type;
   @FXML
-  private TextField troop_field;          // use this field for the type of troops and number of troops
+  private TextField troop_field; // use this field for the type of troops and number of troops
   @FXML
   private TextField tax_level;
 
   @FXML
-  private ComboBox soldier_options;       // combobox to show all possible soldiers that can be recruited
+  private ComboBox soldier_options; // combobox to show all possible soldiers that can be recruited
   @FXML
-  private ComboBox number_soldiers;       // combobox to show number of soldiers that can be recruited
+  private ComboBox number_soldiers; // combobox to show number of soldiers that can be recruited
   @FXML
-  private ComboBox building_options;      // combobox to show possible buildigns that can be built
+  private ComboBox building_options; // combobox to show possible buildigns that can be built
+
+  @FXML
+  private VBox province_pane;
+  @FXML
+  private VBox buildings_pane;         // pane used to display information about a province
 
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
@@ -191,8 +200,7 @@ public class GloriaRomanusController{
         resetSelections();  // reset selections in UI
         return;
       }
-      resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphic
+      resetView();
       
     }
   }
@@ -245,8 +253,7 @@ public class GloriaRomanusController{
     Command newCommand = new Command();
     newCommand.setStrategy(new Move());
     printMessageToTerminal(newCommand.executeStrategy(moveFrom, moveTo));
-    resetSelections();
-    addAllPointGraphics();
+    resetView();
   }
 
   @FXML
@@ -261,8 +268,7 @@ public class GloriaRomanusController{
     Command newCommand = new Command();
     newCommand.setStrategy(new Raid(humanFaction, enemyFaction));
     printMessageToTerminal(newCommand.executeStrategy(engagingProvince, defendingProvince));
-    resetSelections();
-    addAllPointGraphics();
+    resetView();
     return ;
   }
 
@@ -288,7 +294,7 @@ public class GloriaRomanusController{
     }
 
     setFactions();
-    addAllPointGraphics(); // reset graphics
+    resetView();
     printMessageToTerminal("Loaded game from save!");
     printMessageToTerminal("Player 1: " + user1.getName());
     printMessageToTerminal("Player 2: " + user2.getName());
@@ -299,9 +305,7 @@ public class GloriaRomanusController{
 
   @FXML
   public void clickedResetButton(ActionEvent e) throws IOException {
-    clearDropDowns();
-    addAllPointGraphics(); // reset graphics
-    resetSelections();
+    resetView();
   }
 
   @FXML
@@ -316,8 +320,7 @@ public class GloriaRomanusController{
   public void clickedAddBuildingButton(ActionEvent e) throws IOException {
     if (currentlySelectedProvince1 == null) {
       printMessageToTerminal("Please select a province");
-      resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
+      resetView();
       return;
     }
     
@@ -335,16 +338,12 @@ public class GloriaRomanusController{
     printMessageToTerminal(province.addBuilding(buildingType));
     gold = province.getFaction().getTreasury();
     treasury.setText(Integer.toString(gold));
-    clearDropDowns();
-    resetSelections();
-    addAllPointGraphics();
+    resetView();
   }
   @FXML
   public void clickedTaxationButton(ActionEvent e) throws IOException {
     if (currentlySelectedProvince1 == null) {
-      printMessageToTerminal("Please select a province");
-      resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
+      resetView();
       return;
     }
     String[] options = {"Low", "Medium", "High", "Very High"};
@@ -372,42 +371,6 @@ public class GloriaRomanusController{
 
     }
     return;
-  }
-
-  @FXML
-  public void clickedRecruitTroopButton(ActionEvent e) throws IOException {
-    if (currentlySelectedProvince1 == null) {
-      printMessageToTerminal("Please select a province");
-      resetSelections();  // reset selections in UI
-      addAllPointGraphics(); // reset graphics
-      return;
-    }
-    if (turnCounter%2 == 0) {
-      humanFaction = user1;
-      enemyFaction = user2;
-    } else {
-      humanFaction = user2;
-      enemyFaction = user1;
-    }
-    
-    if (!(soldier_options.getValue() != null && number_soldiers.getValue() != null)) {
-      printMessageToTerminal("Please select one soldier type and the number");
-      printMessageToTerminal("of soldiers you would like to recruit");
-      return;
-    } 
-
-    int numTroops = Integer.parseInt((String) number_soldiers.getValue());
-    String troopType = (String) soldier_options.getValue();
-
-    Province province = provinceMap.getProvince((String)currentlySelectedProvince1.getAttributes().get("name"));
-    printMessageToTerminal(province.recruitSoldier(troopType, numTroops));
-
-    gold = province.getFaction().getTreasury();
-    treasury.setText(Integer.toString(gold));
-    clearDropDowns();
-    resetSelections();  // reset selections in UI
-    addAllPointGraphics(); // reset graphics
-
   }
 
   /**
@@ -677,8 +640,7 @@ public class GloriaRomanusController{
       gameFinished = true;
     }
 
-    // Clear the dropDowns
-    clearDropDowns();
+    resetView();
 
     //Update all the provinces
     for (Province province : lockedProvinces) {
@@ -694,13 +656,7 @@ public class GloriaRomanusController{
     enemyFaction = null;
     printMessageToTerminal("The year is " + turnCounter + " - now it is player" + (turnCounter % 2 + 1) + "'s turn");
     setFactions();
-    resetSelections();  // reset selections in UI
-    addAllPointGraphics(); // reset graphic
-    if (turnCounter % 2 == 0) {
-      treasury.setText(Integer.toString(user2.getTreasury()));
-    } else {
-      treasury.setText(Integer.toString(user1.getTreasury()));
-    }
+    treasury.setText(Integer.toString(humanFaction.getTreasury()));
     turn_number.setText(Integer.toString(turnCounter));
   }
 
@@ -710,6 +666,7 @@ public class GloriaRomanusController{
   }
 
   public void displaySelection(Feature selectedProvince) {
+    province_pane.getChildren().clear();
     clearDropDowns();
     if (selectedProvince == null) {
       return;
@@ -717,44 +674,43 @@ public class GloriaRomanusController{
     Province province = provinceMap.getProvince((String)selectedProvince.getAttributes().get("name"));
     if (province.getFaction() == humanFaction) {
       try {
-        loadSoldierDropDown(province);
         loadBuildingDropDown(province);
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
-    
+    province_pane.getChildren().add(province_info_terminal);
+
+    // Add button upgrade roads
+    if (province.getRoadLevel() < 3 && humanFaction.getTreasury() >= province.getCostToUpgrade()) {
+      Button upgradeRoadsButton = new Button ("Upgrade Roads");
+      province_pane.getChildren().add(upgradeRoadsButton);
+      upgradeRoadsButton.setOnAction(new EventHandler<ActionEvent>(){
+        @Override
+        public void handle(ActionEvent arg0) {
+          printMessageToTerminal(province.upgradeRoads());
+          resetView();
+          return;
+        }
+      });
+    }
+    province_pane.getChildren().add(building_options);
+    province_pane.getChildren().add(buildings_pane);
     province_info_terminal.clear();
     province_info_terminal.appendText(province.getName() + "\n");
     province_info_terminal.appendText("Tax Level: " + province.getTaxLevel() + "\n");
     province_info_terminal.appendText("Wealth: " + province.getWealth() + "\n");
-    province_info_terminal.appendText("Road level: " + province.getRoadLevel() + "\n");
+    province_info_terminal.appendText("Road level: " + province.getRoadLevelString() + "\n");
     province_info_terminal.appendText("Units: \n");
     for (Unit unit: province.getUnits()) {
       province_info_terminal.appendText("\t" + unit.getType() + ": " + unit.getNumTroops() + " troops\n");
     }
-    province_info_terminal.appendText("Buildings:\n");
+    buildings_pane.getChildren().clear();
+    buildings_pane.getChildren().add(new TextField("Buildings"));
     for (Building building: province.getBuildings()) {
-      province_info_terminal.appendText("\t"+ building.getType() + ": ");
-      switch (building.getStatus()) {
-        case "Being built":
-          province_info_terminal.appendText(building.getStatus() + ", avaialble in " + 
-                                            building.getTurnAvailable() + " turns\n");
-          break;
-        case "Training":
-          province_info_terminal.appendText(building.getStatus() +" soldiers. Available in "+ building.getUnitBeingTrained().getTurnsToTrain() + "\n");
-          break;
-        case "Idle" :
-          province_info_terminal.appendText(building.getStatus() + "\n");
-          break;
-        case "Broken" :{
-          province_info_terminal.appendText(building.getStatus() + "\n");
-          break;
-        }
-      }
+      displayBuildingOptions(building);
     }
   }
-
   private void setFactions() {
     if (turnCounter%2 == 0) {
       this.humanFaction = user1;
@@ -766,47 +722,6 @@ public class GloriaRomanusController{
   }
 
   // Load up the possible soldiers that can be recurited
-  private void loadSoldierDropDown(Province province) throws IOException {
-    soldier_options.getItems().clear();
-    number_soldiers.getItems().clear();
-    number_soldiers.setVisibleRowCount(5);
-    soldier_options.setVisibleRowCount(5);
-    String unitConfigurationContent = Files.readString(Paths.get("src/unsw/gloriaromanus/configFiles/unit_configuration.json"));
-    JSONObject unitConfiguration = new JSONObject(unitConfigurationContent);
-    List<String> recruitableSoldierTypes = new ArrayList<>();
-    if (province.getBuildings().size() > 0) {
-      for (Building building : province.getBuildings()) {
-        // check the buildings type and bring up all the possible units that can be recruited, taking into account
-        // costs as well as if the building is training a soldier
-        if (!building.is("Idle")) {
-          continue;
-        }
-        
-        for (String unitKey : unitConfiguration.keySet()) {
-          JSONObject unit = unitConfiguration.getJSONObject(unitKey);
-          if (unit.getString("category").equals(building.getType())) {
-            recruitableSoldierTypes.add(unitKey);
-          }
-        }
-      }
-      soldier_options.getItems().addAll(recruitableSoldierTypes);
-
-      soldier_options.setOnAction(e -> {
-        String chosenUnit = (String) soldier_options.getValue();
-        if (chosenUnit == null) {
-          return;
-        }
-        JSONObject requestedUnitJSON = unitConfiguration.getJSONObject(chosenUnit);
-        number_soldiers.getItems().clear();
-        number_soldiers.setVisibleRowCount(5);
-        int numRequestible = humanFaction.getTreasury()/requestedUnitJSON.getInt("cost");
-        for (int i = 1; i <= numRequestible; i++) {
-          number_soldiers.getItems().add(Integer.toString(i));
-        }
-      });
-  
-    }
-  }
 
   private void loadBuildingDropDown(Province province) throws IOException {
     building_options.getItems().clear();
@@ -823,11 +738,142 @@ public class GloriaRomanusController{
   }
 
   private void clearDropDowns() {
-    soldier_options.getItems().clear();
-    number_soldiers.getItems().clear();
     building_options.getItems().clear();
+    buildings_pane.getChildren().clear();
   }
 
+  private void displayBuildingOptions(Building building) {
+    Province province = building.getProvince();
+    TextField buildingName = new TextField (building.getType() + " - Level " + (building.getLevel()+1));
+    buildingName.setEditable(false);
+    buildings_pane.getChildren().add(buildingName);
 
+    if (province.getFaction() != humanFaction) {
+      TextField buildingStatus = new TextField (building.getStatus());
+      buildingStatus.setEditable(false);
+      buildings_pane.getChildren().add(buildingStatus);
+      return;
+    }
 
+    switch (building.getStatus()) {
+      case "Being built":
+        // text field stating that is being build
+        TextField buildingStatus = new TextField (building.getStatus() + ", avaialble in "  
+                                                  + building.getTurnAvailable() + " turns");
+        buildingStatus.setEditable(false);
+        buildings_pane.getChildren().add(buildingStatus);
+        break;
+      case "Idle":
+        // provide option to recruit troops
+        HBox trainingOptions = new HBox();
+        ComboBox<String> soldierOptions = new ComboBox<String>();
+        ComboBox<String> numberSoldiers=  new ComboBox<String>();
+        trainingOptions.getChildren().add(soldierOptions);
+        trainingOptions.getChildren().add(numberSoldiers);
+        String unitConfigurationContent = null;
+        try {
+          unitConfigurationContent = Files
+              .readString(Paths.get("src/unsw/gloriaromanus/configFiles/unit_configuration.json"));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        JSONObject unitConfiguration = new JSONObject(unitConfigurationContent);
+        List<String> recruitableSoldierTypes = new ArrayList<>();
+        for (String unitKey : unitConfiguration.keySet()) {
+          JSONObject unit = unitConfiguration.getJSONObject(unitKey);
+          if (unit.getString("category").equals(building.getType())) {
+            recruitableSoldierTypes.add(unitKey);
+          }
+        }
+        soldierOptions.getItems().addAll(recruitableSoldierTypes);
+        soldierOptions.setOnAction(e -> {
+          String chosenUnit = (String) soldierOptions.getValue();
+          if (chosenUnit == null) {
+            return;
+          }
+          JSONObject requestedUnitJSON = unitConfiguration.getJSONObject(chosenUnit);
+          numberSoldiers.getItems().clear();
+          numberSoldiers.setVisibleRowCount(5);
+          int numRequestible = humanFaction.getTreasury()/requestedUnitJSON.getInt("cost");
+          for (int i = 1; i <= numRequestible; i++) {
+            numberSoldiers.getItems().add(Integer.toString(i));
+          }
+        });
+
+        // Button to recruit soldiers
+        Button recruitButton = new Button("Recruit Soldiers");
+        trainingOptions.getChildren().add(recruitButton);
+        recruitButton.setOnAction(new EventHandler<ActionEvent>(){
+          @Override
+          public void handle(ActionEvent arg0) {
+            String soldierType = soldierOptions.getValue();
+            int numSoldiers = Integer.parseInt(numberSoldiers.getValue());
+            try {
+              printMessageToTerminal(province.recruitSoldier(soldierType, numSoldiers));
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            treasury.setText(Integer.toString(province.getFaction().getTreasury()));
+            resetView();
+            return;
+          }
+        });
+        buildings_pane.getChildren().add(trainingOptions);
+
+        // Add button to upgrade the building
+        if (building.getLevel() < 3) {
+          if (humanFaction.getTreasury() >= building.checkUpgrade().getInt("cost")) {
+            Button upgradeButton = new Button("Upgrade this building");
+            buildings_pane.getChildren().add(upgradeButton);
+            upgradeButton.setOnAction(new EventHandler<ActionEvent>(){
+              @Override
+              public void handle(ActionEvent arg0) {
+                printMessageToTerminal(building.upgrade());
+                treasury.setText(Integer.toString(province.getFaction().getTreasury()));
+                resetView();
+              }
+            });
+          }
+          
+        }
+        
+        break;
+      case "Training" :
+        // text field stating that is currently training a troop and when it will finish training
+        TextField trainingStatus = new TextField (building.getStatus() +" soldiers. Available in "
+                                                  + building.getUnitBeingTrained().getTurnsToTrain());
+        trainingStatus.setEditable(false);
+        buildings_pane.getChildren().add(trainingStatus);
+        break;
+      case "Broken" :
+        // provide option to rebuild the building at a cost
+        TextField brokenStatus = new TextField ("Building has been destroyed!");
+        brokenStatus.setEditable(false);
+        buildings_pane.getChildren().add(brokenStatus);
+        Button repairButton = new Button("Repair Building");
+        buildings_pane.getChildren().add(repairButton);
+        repairButton.setOnAction(new EventHandler<ActionEvent>(){
+          @Override
+          public void handle(ActionEvent arg0) {
+            printMessageToTerminal(building.repair());
+            treasury.setText(Integer.toString(province.getFaction().getTreasury()));
+            resetView();
+            return;
+          }
+        });
+        break;
+    }
+  }
+  
+  private void resetView() {
+    resetSelections();
+    try {
+      addAllPointGraphics();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    province_pane.getChildren().clear();
+    treasury.setText(Integer.toString(humanFaction.getTreasury()));
+    clearDropDowns();
+  }
 }

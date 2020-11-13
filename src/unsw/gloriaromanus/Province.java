@@ -30,7 +30,7 @@ public class Province {
     private String name;
     private Faction faction;
     private List<Unit> units;
-    private String roadLevel;
+    private int roadLevel;
     private int movementPointsReq;
     private boolean locked = false;
     private ArrayList<Building> buildings;
@@ -50,7 +50,7 @@ public class Province {
         Unit firstUnit = new Unit("Swordsmen",50);
         units.add(firstUnit);
         
-        this.roadLevel = "No roads";
+        this.roadLevel = 0;
         this.movementPointsReq = 4;
         buildings = new ArrayList<>();
         taxLevel = "Low";
@@ -122,7 +122,7 @@ public class Province {
         locked = false;
     }
 
-    public String getRoadLevel() {
+    public int getRoadLevel() {
         return roadLevel;
     }
     
@@ -136,19 +136,19 @@ public class Province {
         newOwner.addProvince(this);
     }
 
-    public void setRoadLevel(String roadLevel) {
+    public void setRoadLevel(int roadLevel) {
         this.roadLevel = roadLevel;
         switch (roadLevel) {
-            case "No roads":
+            case 0:
                 this.movementPointsReq = 4;
                 break;
-            case "Dirt roads":
+            case 1:
                 this.movementPointsReq = 3;
                 break;
-            case "Paved roads":
+            case 2:
                 this.movementPointsReq = 2;
                 break;
-            case "Highways roads":
+            case 3:
                 this.movementPointsReq = 1;
                 break;
 
@@ -224,7 +224,7 @@ public class Province {
         }
 
         // set the infrastructure of the units
-        roadLevel = json.getString("roadLevel");
+        roadLevel = json.getInt("roadLevel");
         movementPointsReq = json.getInt("movementPointsReq");
         wealth = json.getInt("wealth");
         taxLevel = json.getString("taxLevel");
@@ -300,6 +300,39 @@ public class Province {
         return flag;
     }
 
+    public String upgradeRoads() {
+        faction.setTreasury(faction.getTreasury() - getCostToUpgrade());
+        roadLevel +=1;
+        setRoadLevel(roadLevel);
+        return "Successfully upgraded the roads!";
+    }
+
+    public String getRoadLevelString() {
+        switch (roadLevel) {
+            case 0:
+                return "No Roads";
+            case 1:
+                return "Dirt Roads";
+            case 2:
+                return "Paved Roads";
+            case 3:
+                return "HighWay";
+        }
+        return null;
+    }
+
+    public int getCostToUpgrade() {
+        switch (roadLevel+1) {
+            case 1:
+                return 200;
+            case 2:
+                return 300;
+            case 3:
+                return 400;
+        }
+        return 0;
+    }
+    
     /**
      * Method to update a province by applying the changes made to the province update building times, troop training and wealth generation
      */
@@ -344,33 +377,22 @@ public class Province {
     }
 
     public String recruitSoldier(String unitType, int numTroops) throws IOException {
-        Unit newUnit = new Unit(unitType, numTroops);
-        
-        // check if we have enough money
-        if (newUnit.getCost()*newUnit.getNumTroops() > getFaction().getTreasury()) {
-            String s = "Not enough gold!";
-            return s;
-        }
-        
-        
+        Unit newUnit = new Unit(unitType, numTroops);  
         //check if we have the right building and building level to create this troop
         Building buildingAvailable = null;
         for (Building building : buildings) {
             if (building.getType().equals(newUnit.getCategory()) && building.isBuilt()) {
-                if (building.is("Training")) {
-                    return "Currently training soldiers";
-                }
                 buildingAvailable = building;
                 break;
             }
         }
         //add the troop and substract the money
         // need to account for soldier training time
-        newUnit.setTurnsToTrain();
+        newUnit.setTurnsToTrain(buildingAvailable);
         buildingAvailable.trainingUnit(newUnit);
         faction.setTreasury(faction.getTreasury() - newUnit.getCost()*newUnit.getNumTroops());
 
-        String s = "You have successfully recruited" + newUnit.getNumTroops() + " " + newUnit.getCategory()
+        String s = "You have successfully recruited " + newUnit.getNumTroops() + " " + newUnit.getCategory()
                     + "\n Will begin training.";
         return s;
     }

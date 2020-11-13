@@ -33,6 +33,16 @@
                 </fills>
             </Background>
         </background>
+        <HBox >
+            <VBox>
+                <Label text="Year"/>
+                <TextField fx:id="turn_number" text="" editable="false"/>
+            </VBox>
+            <VBox>
+                <Label text="Treasury"/>
+                <TextField fx:id="treasury" text="" editable="false"/>
+            </VBox>
+        </HBox>
         <HBox>
             <VBox>
                 <Label text="Province 1"/>
@@ -62,6 +72,28 @@
             <TextArea fx:id="output_terminal" text="" editable="false"/>
         </VBox>
         <VBox>
+            <Label text="Taxation Levels"/>
+            <TextField fx:id="tax_level" text="" editable="true"/>
+            <Button text="Set taxes" onAction="#clickedTaxationButton"/>
+        </VBox>
+        
+    </VBox>
+    <VBox fx:id="province_pane" StackPane.alignment="BOTTOM_RIGHT" spacing="10" maxWidth="250" styleClass="panel-region">
+        <padding>
+            <Insets topRightBottomLeft="10"/>
+        </padding>
+        <background>
+            <Background>
+                <fills>
+                    <BackgroundFill>
+                        <fill>
+                            <Color opacity="0.3"/>
+                        </fill>
+                    </BackgroundFill>
+                </fills>
+            </Background>
+        </background>
+        <VBox>
             <Label text="Info about selected province"/>
             <TextArea fx:id="province_info_terminal" text="" editable="false"/>
         </VBox>
@@ -70,29 +102,7 @@
             <ComboBox fx:id="building_options"/>
             <Button text="Add Building" onAction="#clickedAddBuildingButton"/>
         </VBox>
-        <VBox>
-            <Label text="Recruit Soldiers"/>
-            <HBox>
-                <ComboBox fx:id="soldier_options"/>
-                <ComboBox fx:id="number_soldiers"/>
-            </HBox>
-            <Button text="Request troops" onAction="#clickedRecruitTroopButton"/>
+        <VBox fx:id = "buildings_pane" spacing = "10">
         </VBox>
-        <VBox>
-            <Label text="Taxation Levels"/>
-            <TextField fx:id="tax_level" text="" editable="true"/>
-            <Button text="Set taxes" onAction="#clickedTaxationButton"/>
-        </VBox>
-        
     </VBox>
-    <HBox StackPane.alignment="TOP_RIGHT" spacing="10" maxWidth="250" maxHeight="30" styleClass="panel-region">
-        <VBox>
-            <Label text="Year"/>
-            <TextField fx:id="turn_number" text="" editable="false"/>
-        </VBox>
-        <VBox>
-            <Label text="Treasury"/>
-            <TextField fx:id="treasury" text="" editable="false"/>
-        </VBox>
-    </HBox>
 </StackPane>
