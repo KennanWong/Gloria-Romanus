@@ -116,7 +116,8 @@ public class GloriaRomanusController {
   @FXML
   private VBox buildings_pane;         // pane used to display information about a province
 
-  
+  private int clickselected1;
+  private int clickselected2;
 
   private Feature currentlySelectedProvince1;
   private Feature currentlySelectedProvince2;
@@ -241,7 +242,7 @@ public class GloriaRomanusController {
 
     // Checked requirements, good to make move, add move to command queue
     Command newCommand = new Command();
-    newCommand.setStrategy(new Move());
+    newCommand.setStrategy(new Move(requiredMovementPoints, movementPointsAvailable));
     printMessageToTerminal(newCommand.executeStrategy(moveFrom, moveTo));
     resetView();
   }
@@ -413,7 +414,14 @@ public class GloriaRomanusController {
         Province province = provinceMap.getProvince((String) f.getProperty("name"));
         Faction faction = province.getFaction();
 
-        String text = faction.getName() + "\n" + province.getName() + "\n";
+        String text = faction.getName() + "\n" + province.getName();
+
+        if (province.isRaided()) {
+          text += " - Was raided!\n";
+        } else {
+          text += "\n";
+        }
+
         for (Unit unit: province.getUnits()) {
            text += unit.getType() + " - " + unit.getNumTroops() + "\n";
         }
@@ -421,21 +429,25 @@ public class GloriaRomanusController {
         TextSymbol t = new TextSymbol(10,
             text, 0xFFFF0000,
             HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
+        
+        if (province.isRaided()) {
+          s = new PictureMarkerSymbol("images/repairIcon.png");
+        } else {
+          switch (faction.getName()){
+            case "Gaul":
+              // note can instantiate a PictureMarkerSymbol using the JavaFX Image class - so could
+              // construct it with custom-produced BufferedImages stored in Ram
+              // http://jens-na.github.io/2013/11/06/java-how-to-concat-buffered-images/
+              // then you could convert it to JavaFX image https://stackoverflow.com/a/30970114
 
-        switch (faction.getName()){
-          case "Gaul":
-            // note can instantiate a PictureMarkerSymbol using the JavaFX Image class - so could
-            // construct it with custom-produced BufferedImages stored in Ram
-            // http://jens-na.github.io/2013/11/06/java-how-to-concat-buffered-images/
-            // then you could convert it to JavaFX image https://stackoverflow.com/a/30970114
-
-            // you can pass in a filename to create a PictureMarkerSymbol...
-            s = new PictureMarkerSymbol(new Image((new File("images/Celtic_Druid.png")).toURI().toString()));
-            break;
-          case "Rome":
-            // you can also pass in a javafx Image to create a PictureMarkerSymbol (different to BufferedImage)
-            s = new PictureMarkerSymbol("images/legionary.png");
-            break;
+              // you can pass in a filename to create a PictureMarkerSymbol...
+              s = new PictureMarkerSymbol(new Image((new File("images/Celtic_Druid.png")).toURI().toString()));
+              break;
+            case "Rome":
+              // you can also pass in a javafx Image to create a PictureMarkerSymbol (different to BufferedImage)
+              s = new PictureMarkerSymbol("images/legionary.png");
+              break;
+          }
         }
         t.setHaloColor(0xFFFFFFFF);
         t.setHaloWidth(2);
@@ -507,22 +519,35 @@ public class GloriaRomanusController {
                   province_1.setText(province.getName());
                   displaySelection(currentlySelectedProvince1);
                   featureLayer.selectFeature(f);         
+                  clickselected1 = 0;
                 } else if (provinceName.equals((String)currentlySelectedProvince1.getAttributes().get("name"))) {
-                  province_1.setText("");
-                  featureLayer.unselectFeature(currentlySelectedProvince1);
-                  province_pane.getChildren().clear();
-                  currentlySelectedProvince1 = null;
+                  if (clickselected1 == 0 ) {
+                    displaySelection(currentlySelectedProvince1);
+                    clickselected1 = 1;
+                  } else if (clickselected1 == 1) {
+                    province_1.setText("");
+                    featureLayer.unselectFeature(currentlySelectedProvince1);
+                    province_pane.getChildren().clear();
+                    currentlySelectedProvince1 = null;
+                    clickselected1 = 0;
+                  }
                 } else if (currentlySelectedProvince2 == null) {
                   currentlySelectedProvince2 = f;
                   province_2.setText(province.getName());
                   displaySelection(currentlySelectedProvince2);
                   featureLayer.selectFeature(f);         
+                  clickselected2 = 0;
                 } else if (provinceName.equals((String)currentlySelectedProvince2.getAttributes().get("name"))) {
+                  if (clickselected1 == 0 ) {
+                    displaySelection(currentlySelectedProvince2);
+                    clickselected2 = 1;
+                  } else if (clickselected1 == 1) {
                     province_2.setText("");
                     featureLayer.unselectFeature(currentlySelectedProvince2);
-                    currentlySelectedProvince2 = null;
                     province_pane.getChildren().clear();
-                  
+                    currentlySelectedProvince2 = null;
+                    clickselected2 = 0;
+                  }
                 }
               }
             }
@@ -634,7 +659,6 @@ public class GloriaRomanusController {
     provinceInfoTerminal.appendText("Tax Level: " + province.getTaxLevel() + "\n");
     provinceInfoTerminal.appendText("Wealth: " + province.getWealth() + "\n");
     provinceInfoTerminal.appendText("Road level: " + province.getRoadLevelString() + "\n");
-    provinceInfoTerminal.appendText("Units: \n");
 
     // Display buttons to modify the province if we are the owner of that province
     if (province.getFaction() == humanFaction) {
@@ -828,6 +852,7 @@ public class GloriaRomanusController {
           @Override
           public void handle(ActionEvent arg0) {
             printMessageToTerminal(building.repair());
+            province.setRaided(false);
             treasury.setText(Integer.toString(province.getFaction().getTreasury()));
             int indexOf = vBox.getChildren().indexOf(buildingBox);
             vBox.getChildren().remove(buildingBox);
@@ -951,6 +976,9 @@ public class GloriaRomanusController {
     }
     province_pane.getChildren().clear();
     treasury.setText(Integer.toString(humanFaction.getTreasury()));
+  }
+
+  private void displayProvinceInfo() {
 
   }
 }

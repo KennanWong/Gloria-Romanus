@@ -39,6 +39,7 @@ public class Province {
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
     private int numLoses;
+    private boolean raided;     // flag to notify if a province has been raided that turn;
 
 
     // \/ temporary just to ensure implementation is correct
@@ -337,12 +338,17 @@ public class Province {
      * Method to update a province by applying the changes made to the province update building times, troop training and wealth generation
      */
     public void update() {
+        raided = false;
         for (Building building : this.buildings) {
             building.update();
+            if (building.is("Broken")) {
+                raided = true;
+            }
         }
         for (Unit unit : units) {
             unit.update();
         }
+        
         locked = false;
         growWealth();      
     }
@@ -442,5 +448,52 @@ public class Province {
             }
         }
         return null;
+    }
+
+    public List<Unit> getSelectedUnits() {
+        List<Unit> selectedUnits = new ArrayList<>();
+        List<Unit> toBeRemoved = new ArrayList<>();
+        for (Unit unit : units) {
+            if (unit.isSelected()) {
+                Unit unitSelected = null;
+                try {
+                    if (unit.getNumSelected() == 0) {
+                        // If a number of units arent declared, default to using the entire unit
+                        unitSelected = new Unit(unit.getType(), unit.getNumTroops());
+                        toBeRemoved.add(unit);
+                    } else {
+                        unitSelected = new Unit(unit.getType(), unit.getNumSelected());
+                        unit.setNumTroops(unit.getNumTroops() - unit.getNumSelected());
+                        unit.setSelected(false);
+                        unit.setNumSelected(0);
+                    }
+                    selectedUnits.add(unitSelected);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        for (Unit unit : toBeRemoved) {
+            units.remove(unit);
+        }
+        return selectedUnits;
+    }
+
+    /**
+     * Given a list of units, add them to the province
+     * @param listOfUnits
+     */
+    public void addUnits(List<Unit> listOfUnits) {
+        for (Unit unit : listOfUnits) {
+            addUnit(unit);
+        }
+    }
+
+    public boolean isRaided() {
+        return raided;
+    }
+
+    public void setRaided(boolean raided) {
+        this.raided = raided;
     }
 }

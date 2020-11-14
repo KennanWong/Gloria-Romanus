@@ -19,8 +19,12 @@ public class Raid implements Strategy {
         this.enemyFaction = enemyFaction;
     }
 
+
     @Override
     public String execute(Province province1, Province province2) {
+        if (province1.isLocked()) {
+            return "Cannot use a province to raid another province in the same turn";
+        }
         if (province1.getFaction() != humanFaction) {
             return "Cannot use a province which you do not own to invade another province!";
         }
@@ -29,15 +33,15 @@ public class Raid implements Strategy {
             return "Please select an enemy province to raid";
         }
 
-        if (province1.getUnits().size() == 0) {
+        List<Unit> engagingUnits = province1.getSelectedUnits();
+        if (engagingUnits.size() == 0) {
             return "Cannot raid another province with no units!";
         }
-        List<Unit> engagingUnits = province1.getUnits();
         List<Unit> opposingUnits = province2.getUnits();
 
         double sizeOfEngaging = 0.0;
         double engagingMorale = 0.0;
-        for (Unit unit : province1.getUnits()) {
+        for (Unit unit : engagingUnits) {
             sizeOfEngaging += unit.getNumTroops();
             engagingMorale += unit.getMorale();
         }
@@ -75,7 +79,8 @@ public class Raid implements Strategy {
                         building.stopTrainingUnit();
                     } 
                     building.setStatus("Broken");
-                }  
+                }
+                province2.setRaided(true);
             }
             for (Building building : buildingsToBeRemoved) {
                 province2.getBuildings().remove(building);
@@ -83,19 +88,30 @@ public class Raid implements Strategy {
             province1.setWealth(province1.getWealth() + province2.getWealth());
             province2.setWealth(0);
             province2.setTaxLevel("High");
+            province1.addUnits(engagingUnits);
             province1.lockDownProvince();
+            
             return "Successful Raid!";
 
         } else {
             for (Unit unit : opposingUnits) {
-                int numCasualties = rand.nextInt((int)(((double) unit.getNumTroops())* chance));
+                int bound = (int)(((double) unit.getNumTroops())* chance);
+                if (bound == 0) {
+                    bound = 1;
+                }
+                int numCasualties = rand.nextInt(bound);
                 unit.setNumTroops(unit.getNumTroops() - numCasualties);
             }
             for (Unit unit : engagingUnits) {
-                int numCasualties = rand.nextInt((int)(((double) unit.getNumTroops())* casualtiesMulti));
+                int bound = (int)(((double) unit.getNumTroops())* casualtiesMulti);
+                if (bound == 0) {
+                    bound = 1;
+                }
+                int numCasualties = rand.nextInt(bound);
                 unit.setNumTroops(unit.getNumTroops() - numCasualties);
             } 
-            return "Raid failed!";
+            province1.addUnits(engagingUnits);
+            return Double.toString(casualtiesMulti);
         }
     }
     
