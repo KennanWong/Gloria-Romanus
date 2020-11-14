@@ -38,6 +38,8 @@ public class Province {
     private String taxLevel; //low med high very high
     private int growth; //gold gained per turn
     private double taxRate; // a multiplier between 0 and 1
+    private int numLoses;
+
 
     // \/ temporary just to ensure implementation is correct
     private int numTroops;
@@ -56,6 +58,7 @@ public class Province {
         taxLevel = "Low";
         taxRate = 0.1;
         growth = 10;
+        numLoses = 0;
     }
 
     /**
@@ -261,9 +264,6 @@ public class Province {
         String buildingConfigurationContent = Files
                 .readString(Paths.get("src/unsw/gloriaromanus/configFiles/building_configuration.json"));
         JSONObject buildingConfiguration = new JSONObject(buildingConfigurationContent);
-        if (!buildingConfiguration.keySet().contains(building)){
-            return "Invalid building type";
-        }
 
 
         Building b = new Building(building, costReduction, buildTimeReduction, this);
@@ -376,6 +376,8 @@ public class Province {
         }
     }
 
+
+
     public String recruitSoldier(String unitType, int numTroops) throws IOException {
         Unit newUnit = new Unit(unitType, numTroops);  
         //check if we have the right building and building level to create this troop
@@ -431,5 +433,14 @@ public class Province {
 
     public double getTaxRate() {
         return taxRate;
+    }
+
+    public Building getBuilding(String buildingType) {
+        for (Building building : buildings) {
+            if (building.getType().equals(buildingType)) {
+                return building;
+            }
+        }
+        return null;
     }
 }

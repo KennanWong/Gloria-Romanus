@@ -45,6 +45,8 @@ public class Unit {
     private int turnsToTrain;   // number of turns required to train this troop RN defaults to 1;
     private boolean broken;     // flag to determine if a unit is "broken" in battle
     private boolean routed;     // flag to determine if a unit is "routed" in battle
+    private boolean selected;   // flag to determine if a unit is selected 
+    private int numSelected;    // field to set the number of selected units
     /**
      * Constructor for a unit class. Provide the typeOfTroop and the number of those troops, and it will pull from a configuration
      * file to fill in the appropriate statistics
@@ -59,7 +61,8 @@ public class Unit {
         this.numTroops = numTroops;
         this.category = unitStat.getString("category");
         type = typeOfTroop;
-
+        numSelected = 0;
+        selected = false;
         switch (category) {
             case "Cavalry":
                 movementPoints = 15;
@@ -113,7 +116,11 @@ public class Unit {
     }
 
     public void setTurnsToTrain(Building building) {
-        this.turnsToTrain = (int) ((double)(level*numTroops)/((double)((building.getLevel() + 1)*(building.getLevel())+ 1)) + 1);
+        int turnsToTrainTmp = (int) ((double)(level*numTroops)/((double)(building.getLevel() + 1)));
+        if (turnsToTrainTmp > (level*numTroops) || turnsToTrainTmp <= 0) {
+            turnsToTrainTmp = level*numTroops;
+        }
+        this.turnsToTrain = turnsToTrainTmp;
     }
 
     public void setNumTroops(int numTroops) {
@@ -157,9 +164,7 @@ public class Unit {
 
 
     public void update() {
-        if (getTurnsToTrain() != 0) {
-            turnsToTrain--;
-        }
+        turnsToTrain -= 1;
     }
 
     public boolean isBroken() {
@@ -214,5 +219,21 @@ public class Unit {
         cost = json.getInt("cost");
         level = json.getInt("level");
         turnsToTrain = json.getInt("turnsToTrain");
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setNumSelected(int numSelected) {
+        this.numSelected = numSelected;
+    }
+
+    public int getNumSelected() {
+        return numSelected;
     }
 }

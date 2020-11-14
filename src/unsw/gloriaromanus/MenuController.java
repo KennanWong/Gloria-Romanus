@@ -1,15 +1,5 @@
 package unsw.gloriaromanus;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
-import javafx.scene.Node;
-import javafx.event.*;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,13 +14,14 @@ import org.json.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import unsw.gloriaromanus.*;
+import javafx.stage.Stage;
 
 public class MenuController {
     @FXML
@@ -95,7 +86,6 @@ public class MenuController {
         stage.close();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
         Parent root = loader.load();
-        GloriaRomanusController controller = loader.getController();
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
