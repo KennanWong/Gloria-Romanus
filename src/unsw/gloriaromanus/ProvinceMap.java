@@ -207,4 +207,6 @@ public class ProvinceMap extends Observer {
     public Map<String, Faction> getFactions() {
         return factions;
     }
+
+
 }

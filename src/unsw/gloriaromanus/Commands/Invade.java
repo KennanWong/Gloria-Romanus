@@ -18,12 +18,16 @@ public class Invade implements Strategy {
         if (humanProvince.isLocked()) {
             return "Cannot use units from a province invaded in the current turn";
         }
-        List <Unit> humanUnits = humanProvince.getUnits();
+
+        
+        List <Unit> humanUnits = humanProvince.getSelectedUnits();
         List <Unit> enemyUnits = enemyProvince.getUnits();
         List <Unit> routedEngagingUnits = new ArrayList<>();
         List <Unit> routedOpposingUnits = new ArrayList<>();
 
-          
+        if (humanUnits.size() == 0) {
+            return "Please select units you would like to go into battle with";
+        }
         // army strength calculated as the sum of number of soldiers in unit x attack x defense for all units in the army.
         double humanStrength = 0;
         for (Unit unit: humanUnits) {
@@ -31,7 +35,7 @@ public class Invade implements Strategy {
         }
 
         if (humanStrength == 0) {
-            return "Lost battle!";
+            return "Lost battle! Low strength";
         }
 
         double enemyStrength = 0;
@@ -42,7 +46,8 @@ public class Invade implements Strategy {
         if (enemyStrength == 0) {
             // invade by default
             enemyProvince.changeProvinceOwnership(humanFaction);
-            humanProvince.moveUnits(enemyProvince);
+            enemyProvince.getUnits().clear();
+            enemyProvince.addUnits(humanUnits);
             enemyProvince.lockDownProvince();
             return "Won battle!";
         }
@@ -113,7 +118,7 @@ public class Invade implements Strategy {
                 }
                 engagingUnit.setNumTroops(numEngagingTroops - numCasualtiesEngaging);
                 opposingUnit.setNumTroops(numOpposingTroops - numCasualtiesOpposing);
-    
+                
                 if (engagingUnit.getNumTroops() <= 0) {
                     // engaging unit lost the battle
                     humanUnits.remove(engagingUnit);
@@ -124,13 +129,15 @@ public class Invade implements Strategy {
                     // opposing unit lost the battle
                     enemyUnits.remove(opposingUnit);
                     skirmishEnd = true;
-                    break;
+                    break;   
                 }
 
                 // 3. Breaking of unit chancOfBreakingEngaging = CoBEngaging
                 if (!engagingUnit.isBroken()) {
                     double CoBEngaging = 1.0 - (double) engagingUnit.getMorale()*0.1;
-                    CoBEngaging += (((double)numCasualtiesEngaging)/((double)numEngagingTroops))/(((double)numCasualtiesOpposing)/((double)numOpposingTroops))*0.1;
+                    if (numCasualtiesOpposing != 0) {
+                        CoBEngaging += (((double)numCasualtiesEngaging)/((double)numEngagingTroops))/(((double)numCasualtiesOpposing)/((double)numOpposingTroops))*0.1;
+                    }
                     if (CoBEngaging < 0.05) {
                         CoBEngaging = 0.05;
                     } else if (CoBEngaging > 1) {
@@ -139,12 +146,15 @@ public class Invade implements Strategy {
                     double CoBOutcomeEngaging = r.nextDouble();
                     if (CoBOutcomeEngaging < CoBEngaging) {
                         engagingUnit.setBroken(true);
+                        
                     }
                 }
 
                 if (!opposingUnit.isBroken()) {
                     double CoBOpposing = 1.0  - (double) opposingUnit.getMorale()*0.1;
-                    CoBOpposing += (((double)numCasualtiesOpposing)/((double)numOpposingTroops))/(((double)numCasualtiesEngaging)/((double)numEngagingTroops)) *0.1;
+                    if (numCasualtiesEngaging != 0) {
+                        CoBOpposing += (((double)numCasualtiesOpposing)/((double)numOpposingTroops))/(((double)numCasualtiesEngaging)/((double)numEngagingTroops)) *0.1;
+                    }
                     if (CoBOpposing < 0.05) {
                         CoBOpposing= 0.05;
                     } else if (CoBOpposing > 1) {
@@ -200,6 +210,7 @@ public class Invade implements Strategy {
 
             }
 
+            // 5. Result
             if (enemyUnits.size() <= 0) {
                 // engaging Army won
                 // move engaging units into invaded province
@@ -213,7 +224,8 @@ public class Invade implements Strategy {
                     }
                 }
                 enemyProvince.changeProvinceOwnership(humanFaction);
-                humanProvince.moveUnits(enemyProvince);
+                enemyProvince.getUnits().clear();
+                enemyProvince.addUnits(humanUnits);
                 enemyProvince.lockDownProvince();
                 return "Won battle!";
 
@@ -230,6 +242,7 @@ public class Invade implements Strategy {
                     enemyUnits.add(routedUnit);
                 }
                 routedOpposingUnits.clear();
+                humanProvince.addUnits(humanUnits);
                 return "Lost battle";
 
             }
@@ -245,7 +258,12 @@ public class Invade implements Strategy {
         Random rand = new Random();
         double damageToOpposing;
         // engagingUnit damage
-        damageToOpposing = (double)(opposingUnit.getNumTroops() * 0.1) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        if (opposingUnit.getNumTroops() < 10) {
+            damageToOpposing = (double)(1.0) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        } else {
+            damageToOpposing = (double)(opposingUnit.getNumTroops() * 0.1) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        }
+        
         
         int casualties = (int) (damageToOpposing);
         if (casualties > opposingUnit.getNumTroops()) {
@@ -268,9 +286,13 @@ public class Invade implements Strategy {
         Random rand = new Random();
         double damageToOpposing;
         // engagingUnit damage
-        damageToOpposing = (double)(opposingUnit.getNumTroops() * 0.1) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        if (opposingUnit.getNumTroops() < 10) {
+            damageToOpposing = (double)(1.0) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        } else {
+            damageToOpposing = (double)(opposingUnit.getNumTroops() * 0.1) * (((double) engagingUnit.getAttack())/ ((double)(opposingUnit.getArmour() + opposingUnit.getDefenseSkill()))) * (rand.nextGaussian() + 1);
+        }
 
-        int casualties = (int) (opposingUnit.getNumTroops() * damageToOpposing);
+        int casualties = (int) (damageToOpposing);
         if (casualties > opposingUnit.getNumTroops()) {
             casualties = opposingUnit.getNumTroops();
         }
