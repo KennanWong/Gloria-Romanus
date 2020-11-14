@@ -35,7 +35,6 @@
         <VBox>
             <TextArea StackPane.alignment = "CENTER" fx:id="output_terminal" text="" editable="false"/>
         </VBox>
-
         <VBox>
             <HBox >
                 <Button fx:id="faction_1_name" text = "" onAction = "#clickedFaction1" />
@@ -53,7 +52,7 @@
             </HBox>
         </VBox>
 
-        <Button text="Start Game" onAction="#clickedOfflineGameButton"/>
+        <Button text="Start Game" alignment ="CENTER" onAction="#clickedOfflineGameButton"/>
         
     </VBox>
 

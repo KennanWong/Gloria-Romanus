@@ -22,8 +22,8 @@ public class GloriaRomanusApplication extends Application {
   public void start(Stage stage) throws IOException {
     // set up the stage
     stage.setTitle("Gloria Romanus");
-    stage.setWidth(800);
-    stage.setHeight(700);
+    stage.setWidth(1920);
+    stage.setHeight(1080);
 
     // Set up main menu
     window = stage;

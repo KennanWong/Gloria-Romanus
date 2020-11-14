@@ -47,13 +47,12 @@ public class Building {
             // If the building is built and if there are any units that have finished
             // training
             if (unitBeingTrained != null) {
+                unitBeingTrained.update();
                 if (unitBeingTrained.getTurnsToTrain() <= 0) {
                     // unit has finished training
                     province.addUnit(unitBeingTrained);
                     status = "Idle";
                     unitBeingTrained = null;
-                } else {
-                    unitBeingTrained.update();
                 }
             }
             return;
