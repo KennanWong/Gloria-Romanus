@@ -111,7 +111,7 @@ public class Raid implements Strategy {
                 unit.setNumTroops(unit.getNumTroops() - numCasualties);
             } 
             province1.addUnits(engagingUnits);
-            return Double.toString(casualtiesMulti);
+            return "Loss Raid";
         }
     }
     

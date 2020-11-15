@@ -857,6 +857,11 @@ public class GloriaRomanusController {
             int indexOf = vBox.getChildren().indexOf(buildingBox);
             vBox.getChildren().remove(buildingBox);
             displayBuildingOptions(building, vBox, indexOf);
+            try {
+              addAllPointGraphics();
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
             return;
           }
         });
@@ -978,7 +983,4 @@ public class GloriaRomanusController {
     treasury.setText(Integer.toString(humanFaction.getTreasury()));
   }
 
-  private void displayProvinceInfo() {
-
-  }
 }
